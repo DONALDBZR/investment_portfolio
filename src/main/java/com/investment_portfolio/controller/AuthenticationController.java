@@ -65,7 +65,7 @@ public class AuthenticationController {
     }
 
     /**
-     * Sending login data to an external API, stores the result in a JSON file, and returning the response.
+     * Sending login data to an external API, storing the result in a JSON file, and returning the response.
      * @param credentials The login request body from the client
      * @return The response from the external API
      */
