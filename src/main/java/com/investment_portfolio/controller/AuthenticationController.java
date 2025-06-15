@@ -42,17 +42,14 @@ public class AuthenticationController {
     private String password;
 
     /**
-     * The constructor of the controller which sets the data needed for the authentication.
-     * @param fin_club_controller The injected FinClub controller containing the base uniform resource locator.
-     * @param mail_address The mail address of the user needed to be authenticated.
-     * @param password The password of the user needed to be authenticated.
+     * Constructing an {@code AuthenticationController} instance with the necessary dependencies and credentials to perform authentication requests against the external FinClub API.
+     * <p>This constructor initializes the login API route using the base uniform resource locator from the injected controller, and retrieves the login credentials from the application configuration.  It also initializes the required components for HTTP requests and JSON processing.</p>
+     * @param fin_club_controller The injected controller containing the base FinClub API uniform resource locator.
+     * @param mail_address The user's email address used for authentication.
+     * @param password The user's password used for authentication.
      */
     @Autowired
-    public AuthenticationController(
-        FinClubController fin_club_controller,
-        @Value("${finclub.api.login.mail_address}") String mail_address,
-        @Value("${finclub.api.login.password}") String password
-    ) {
+    public AuthenticationController(FinClubController fin_club_controller, @Value("${finclub.api.login.mail_address}") String mail_address, @Value("${finclub.api.login.password}") String password) {
         String login_api_route = fin_club_controller.getBaseUniformResourceLocator() + "/api/WB/authentication/sign-in/";
         this.setMailAddress(mail_address);
         this.setPassword(password);
