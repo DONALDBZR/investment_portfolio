@@ -75,24 +75,23 @@ public class FinClub {
     }
 
     /**
-     * Sending a login request to the FinClub API using the provided endpoint and payload, and caching the response body to a JSON file in the specified directory.
-     * <p>The method performs the following operations:</p>
-     *  <ul>
-     *      <li>Building an HTTP POST request using the provided login payload.</li>
-     *      <li>Sending the request to the FinClub login endpoint.</li>
-     *      <li>Caching the response body to a file located in the given cache directory.</li>
-     *      <li>Determining the final status based on the HTTP response and file write result.</li>
-     * </ul>
-     * <p>If both the API call and file caching are successful, the method returns an OK status.  Otherwise, it returns a Service Unavailable status.  If any exception occurs during the request or file operation, a {@link RuntimeException} is thrown and the error is logged.</p>
-     * @param login_api_route The fully qualified uniform resource locator of the FinClub login API.
-     * @param payload A map containing login credentials and parameters required by the API.
-     * @param cache_directory The local directory path where the API response will be cached.
-     * @return a {@link Map} containing:
+     * Authenticating the user by either retrieving a cached session or performing a login request to the FinClub API.
+     * <p>The method attempts to validate and reuse an existing cache file.  If the file is invalid or expired, a new API request is sent, and the response is cached locally.  The result is returned as a structured map.</p>
+     * <h3>Operations Performed:</h3>
      * <ul>
-     *  <li><b>{@code status}</b>: An integer HTTP status code.</li>
-     *  <li><b>{@code data}</b>: The API response body.</li>
+     *  <li>Checks if the cached authentication file is valid.</li>
+     *  <li>If valid, returns cached response.  Otherwise, makes a POST request to the login API.</li>
+     *  <li>Caches the API response to a file for future use.</li>
      * </ul>
-     * @throws RuntimeException If an unrecoverable I/O or HTTP error occurs.
+     * @param login_api_route The complete uniform resource locator to the FinClub login API endpoint.
+     * @param payload A map containing the login request body.
+     * @param cache_directory The directory path where the authentication response should be cached.
+     * @return A {@link Map} with:
+     * <ul>
+     *  <li><b>{@code status}</b>: An HTTP-style status code indicating the outcome.</li>
+     *  <li><b>{@code data}</b>: The response body either from the cache or the API.</li>
+     * </ul>
+     * @throws RuntimeException If an I/O error or an unexpected failure occurs during the login or caching process.
      */
     public Map<String, Object> login(String login_api_route, Map<String, Object> payload, String cache_directory) throws RuntimeException {
         this.getLogger().info("The user authentication process has started.");
