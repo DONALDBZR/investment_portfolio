@@ -103,19 +103,26 @@ public class AuthenticationController {
 
     /**
      * Sending login data to an external API, storing the result in a JSON file, and returning the response.
-     * @param credentials The login request body from the client
      * @return The response from the external API
      */
     @PostMapping("/Login")
-    public ResponseEntity<Object> login(@RequestBody Map<String, Object> credentials) {
+    public ResponseEntity<Object> login() {
         try {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("mode", "login");
+            payload.put("sign_in_mode", "1");
+            payload.put("type", "users");
+            payload.put("email", this.getMailAddress());
+            payload.put("password", this.getPassword());
+            payload.put("brn", "");
+            payload.put("type_of", "I");
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<Map<String, Object>> request_entity = new HttpEntity<>(credentials, headers);
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
             ResponseEntity<Object> response = this.getRestTemplate().exchange(
                 this.getLoginApiRoute(),
                 HttpMethod.POST,
-                request_entity,
+                request,
                 Object.class
             );
             this.saveResponseToFile(response.getBody());
