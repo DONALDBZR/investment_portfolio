@@ -151,35 +151,10 @@ public class AuthenticationController {
             payload.put("password", this.getPassword());
             payload.put("brn", "");
             payload.put("type_of", "I");
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
-            ResponseEntity<Object> response = this.getRestTemplate().exchange(
-                this.getLoginApiRoute(),
-                HttpMethod.POST,
-                request,
-                Object.class
-            );
-            this.saveResponseToFile(response.getBody());
+            ResponseEntity <Object> response = this.getFinClubModel().login(this.getLoginApiRoute(), payload, this.getCacheDirectory());
             return response;
         } catch (Exception error) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", error.getMessage()));
         }
-    }
-
-    /**
-     * Persisting the given API response object to a JSON file on the server in a human-readable format.
-     * <p>The response is serialized using the configured {@link ObjectMapper} and written to the file.  If the target directory does not exist, it will be automatically created.</p>
-     * @param response_body The API response object to serialize and store as JSON.
-     * @throws IOException If an I/O error occurs during directory creation or file writing.
-     */
-    private void saveResponseToFile(Object response_body) throws IOException {
-        String file_path = this.getCacheDirectory() + "/response.json";
-        Path directory = Paths.get(this.getCacheDirectory());
-        if (!Files.exists(directory)) {
-            Files.createDirectories(directory);
-        }
-        File file = Paths.get(file_path).toFile();
-        this.getObjectMapper().writerWithDefaultPrettyPrinter().writeValue(file, response_body);
     }
 }
