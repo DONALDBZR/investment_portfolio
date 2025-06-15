@@ -19,8 +19,9 @@ public class FinClubController {
     private String base_uniform_resource_locator;
 
     /**
-     * The constructor which sets the base uniform resource locator.
-     * @param base_uniform_resource_locator The base uniform resource locator for FinClub API.
+     * Constructing a new {@code FinClubController} and initializing the base uniform resource locator used to communicate with the FinClub external API.
+     * <p>The base uniform resource locator is injected from the application's configuration properties using Spring's {@code @Value} annotation.  This ensures that sensitive configuration such as external endpoints can be managed securely and separately from source code.</p>
+     * @param base_uniform_resource_locator the base uniform resource locator of the FinClub API.
      */
     public FinClubController(@Value("${finclub.api.base-uniform-resource-locator}") String base_uniform_resource_locator) {
         this.setBaseUniformResourceLocator(base_uniform_resource_locator);
