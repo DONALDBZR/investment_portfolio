@@ -169,6 +169,6 @@ public class FileManager {
         File file = path.toFile();
         Object response = this.getObjectMapper().readValue(file, Object.class);
         this.getLogger().info("The file has been read.\nFile Path: {}", file_path);
-        return status;
+        return response;
     }
 }
