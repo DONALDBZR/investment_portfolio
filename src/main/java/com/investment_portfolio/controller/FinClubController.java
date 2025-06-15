@@ -24,7 +24,7 @@ public class FinClubController {
         this.setBaseUniformResourceLocator("https://finclub.mu:8080");
     }
 
-    private String getBaseUniformResourceLocator() {
+    public String getBaseUniformResourceLocator() {
         return this.base_uniform_resource_locator;
     }
 
