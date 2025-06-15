@@ -117,14 +117,15 @@ public class FinClub {
      *  <li><b>{@code status}</b>: HTTP-style response code indicating the result of the operation.</li>
      *  <li><b>{@code data}</b>: The user authentication data retrieved either from the cache or the API.</li>
      * </ul>
-     * @throws RuntimeException If the API request or file operations encounter an unrecoverable error.
+     * @throws IOException If the file operations encounter an unrecoverable error.
+     * @throws RuntimeException If the API request encounter an unrecoverable error.
      */
     private Map<String, Object> getUserAuthenticationData(
         int file_status,
         String file_path,
         Map<String, Object> payload,
         String login_api_route
-    ) throws RuntimeException {
+    ) throws IOException, RuntimeException {
         int status;
         Map<String, Object> response = new HashMap<>();
         if (file_status == HttpStatus.OK.value()) {
