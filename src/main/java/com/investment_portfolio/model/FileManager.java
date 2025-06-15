@@ -1,6 +1,8 @@
 package com.investment_portfolio.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -15,12 +17,24 @@ public class FileManager {
      * Jackson JSON processor used to serialize Java objects to JSON.
      */
     private ObjectMapper object_mapper;
+    /**
+     * The logger that is responsible of tracking the actions on the application.
+     */
+    private Logger logger;
 
     /**
-     * Constructing a new instance initializing the JSON processor.
+     * Constructing a new {@code FileManager} instance and initializing the necessary components for file operations and JSON processing.
+     * <p>Specifically, this constructor performs the following:</p>
+     * <ul>
+     *  <li>Initializing a SLF4J logger specific to the {@code FileManager} class for logging internal operations.</li>
+     *  <li>Instantiating a Jackson {@code ObjectMapper} for serializing and deserializing JSON data.</li>
+     * </ul>
+     * <p>A log message is emitted to confirm successful initialization.</p>
      */
     public FileManager() {
+        this.setLogger(LoggerFactory.getLogger(FileManager.class));
         this.setObjectMapper(new ObjectMapper());
+        this.getLogger().info("File Manager Model initialized.");
     }
 
     private ObjectMapper getObjectMapper() {
@@ -31,27 +45,39 @@ public class FileManager {
         this.object_mapper = object_mapper;
     }
 
+    private java.util.logging.Logger getLogger() {
+        return this.logger;
+    }
+
+    private void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
     /**
-     * Saving the given response object as a pretty-printed JSON file at the specified path.
-     * <p>If the target directory does not exist, it will be created automatically.  The method returns an integer status code indicating whether the file was newly created or already existed:</p>
+     * Serializing the provided response object into a pretty-printed JSON format and writing it to the specified file path.
+     * <p>If the directory structure does not exist, it will be created automatically.  The method determines whether the target file already existed and returns a corresponding HTTP-style status code to indicate the outcome of the write operation:</p>
      * <ul>
-     * <li>{@code 201} - The file did not exist and was created before writing.</li>
-     * <li>{@code 202} - The file already existed and was overwritten.</li>
+     *  <li>{@code 201 (Created)} – The file did not exist before and was created successfully.</li>
+     *  <li>{@code 202 (Accepted)} – The file already existed and was overwritten successfully.</li>
      * </ul>
-     * <p>In case of an I/O error during directory creation or file writing, an {@link IOException} is thrown.</p>
-     * @param response The Java object to serialize and save as JSON.
-     * @param file_path The full path where the JSON file should be saved.
-     * @return {@code 201} if the file was created, {@code 202} if the file already existed and was overwritten.
-     * @throws IOException If an I/O error occurs during directory creation or file writing.
+     * <p>Detailed log messages are generated throughout the process to aid in debugging and traceability.</p>
+     * @param response The Java object to be serialized and saved as JSON.
+     * @param file_path The absolute path where the JSON file should be written.
+     * @return An integer HTTP-style status code indicating whether the file was created or overwritten.
+     * @throws IOException If an error occurs during directory creation or while writing the file.
      */
     public int saveResponseToFile(Object response, String file_path) throws IOException {
+        this.getLogger().info("The process for writing the data in the cache has started.\nFile Path: {}", file_path);
         Path path = Paths.get(file_path);
         boolean fileExisted = Files.exists(path);
         if (!Files.exists(path.getParent())) {
+            this.getLogger().info("Creating the missing directory.\nDirectory: {}", path.getParent());
             Files.createDirectories(path.getParent());
         }
         File file = path.toFile();
         object_mapper.writerWithDefaultPrettyPrinter().writeValue(file, response);
-        return (fileExisted) ? 202 : 201;
+        int status = (fileExisted) ? 202 : 201;
+        this.getLogger().info("The file has been modified.\nStatus: {}", status);
+        return status;
     }
 }
