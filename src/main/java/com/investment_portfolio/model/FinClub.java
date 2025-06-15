@@ -66,7 +66,7 @@ public class FinClub {
         this.file_manager = file_manager;
     }
 
-    private Logger getLogger() {
+    private java.util.logging.Logger getLogger() {
         return this.logger;
     }
 
@@ -96,28 +96,55 @@ public class FinClub {
      */
     public Map<String, Object> login(String login_api_route, Map<String, Object> payload, String cache_directory) throws RuntimeException {
         this.getLogger().info("The user authentication process has started.");
-        Map<String, Object> response = new HashMap<>();
         try {
             String file_path = cache_directory + "/response.json";
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
-            ResponseEntity<Object> api_response = this.getRestTemplate().exchange(
-                login_api_route,
-                HttpMethod.POST,
-                request,
-                Object.class
-            );
-            int http_status = api_response.getStatusCodeValue();
-            int file_status = this.getFileManager().saveResponseToFile(api_response.getBody(), file_path);
-            int status = (http_status == HttpStatus.OK.value() && (file_status == HttpStatus.CREATED.value() || file_status == HttpStatus.ACCEPTED.value())) ? HttpStatus.OK.value() : HttpStatus.SERVICE_UNAVAILABLE.value();
-            response.put("status", status);
-            response.put("data", api_response.getBody());
-            this.getLogger().info("The user authentication process is complete.\nStatus: {}", status);
-            return response;
+            int file_status = this.getFileManager().isValidPath(file_path);
+            return this.getUserAuthenticationData(file_status, file_path, payload, login_api_route);
         } catch (IOException error) {
-            this.getLogger().error("The user authentication process has failed.\nStatus: 503\nError: {}", error.getMessage());
+            this.getLogger().error("The user authentication process has failed.\nStatus: {}\nError: {}", HttpStatus.SERVICE_UNAVAILABLE.value(), error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
+    }
+
+    /**
+     * Retrieving user authentication data from a cached file or performs a login request to the FinClub API.
+     * <p>If the cached file is still valid, the response is read directly from the cache.  Otherwise, a login API call is made using the given payload, and the response is saved to the specified cache file.</p>
+     * @param file_status HTTP-style status code indicating the validity of the cached file.
+     * @param file_path Full path to the cache file containing the authentication response.
+     * @param payload A map containing login credentials and required parameters for the authentication API.
+     * @param login_api_route The uniform resource locator of the FinClub login API endpoint.
+     * @return A map containing:
+     * <ul>
+     *  <li><b>{@code status}</b>: HTTP-style response code indicating the result of the operation.</li>
+     *  <li><b>{@code data}</b>: The user authentication data retrieved either from the cache or the API.</li>
+     * </ul>
+     * @throws RuntimeException If the API request or file operations encounter an unrecoverable error.
+     */
+    private Map<String, Object> getUserAuthenticationData(
+        int file_status,
+        String file_path,
+        Map<String, Object> payload,
+        String login_api_route
+    ) throws RuntimeException {
+        int status;
+        Map<String, Object> response = new HashMap<>();
+        if (file_status == HttpStatus.OK.value()) {
+            status = HttpStatus.FOUND.value();
+            response.put("status", file_status);
+            response.put("data", this.getFileManager().readResponseFromFile(file_path));
+            this.getLogger().info("The user authentication process is complete using valid cached session.\nStatus: {}", status);
+            return response;
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+        ResponseEntity<Object> api_response = this.getRestTemplate().exchange(login_api_route, HttpMethod.POST, request, Object.class);
+        int http_status = api_response.getStatusCodeValue();
+        int save_status = this.getFileManager().saveResponseToFile(api_response.getBody(), file_path, http_status);
+        status = (http_status == HttpStatus.OK.value() && (save_status == HttpStatus.CREATED.value() || save_status == HttpStatus.ACCEPTED.value())) ? HttpStatus.OK.value() : HttpStatus.SERVICE_UNAVAILABLE.value();
+        response.put("status", status);
+        response.put("data", api_response.getBody());
+        this.getLogger().info("The user authentication process is complete from API request.\nStatus: {}", status);
+        return response;
     }
 }
