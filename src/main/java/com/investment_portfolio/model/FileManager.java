@@ -45,7 +45,7 @@ public class FileManager {
         this.object_mapper = object_mapper;
     }
 
-    private java.util.logging.Logger getLogger() {
+    private Logger getLogger() {
         return this.logger;
     }
 
