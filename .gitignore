@@ -1,0 +1,6 @@
+/HELP.md
+/.gradle
+/build/
+/.vscode/
+/src/main/resources/application.properties
+/src/test/
