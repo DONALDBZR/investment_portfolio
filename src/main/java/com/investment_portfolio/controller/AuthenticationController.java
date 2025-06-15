@@ -119,8 +119,11 @@ public class AuthenticationController {
     }
 
     /**
-     * Sending login data to an external API, storing the result in a JSON file, and returning the response.
-     * @return The response from the external API
+     * Sending a login request with user credentials to an external FinClub authentication API, saving the JSON response to a file on the server, and returning the API response to the client.
+     * <p>The request payload includes necessary fields such as mode, sign-in mode, user type, email, password, and other required parameters.  The request is sent as a POST with a JSON body.</p>
+     * <p>If the external API call succeeds, the JSON response body is saved in a local cache file.  If any exception occurs during the process the method
+     * returns a 503 Service Unavailable status with an error message.</p>
+     * @return a {@link ResponseEntity} containing the external API's response body on success, or an error message with HTTP status 503 if the request fails.
      */
     @PostMapping("/Login")
     public ResponseEntity<Object> login() {
