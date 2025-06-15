@@ -66,6 +66,14 @@ public class FinClub {
         this.file_manager = file_manager;
     }
 
+    private Logger getLogger() {
+        return this.logger;
+    }
+
+    private void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
     /**
      * Sending a login request to the FinClub API using the provided endpoint and payload, and caching the response body to a JSON file in the specified directory.
      * <p>The method performs the following operations:</p>
