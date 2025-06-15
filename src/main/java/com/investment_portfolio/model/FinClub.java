@@ -69,22 +69,7 @@ public class FinClub {
             request,
             Object.class
         );
-        this.saveResponseToFile(response.getBody(), file_path);
+        this.getFileManager().saveResponseToFile(response.getBody(), file_path);
         return response.getBody();
-    }
-
-    /**
-     * Saving a given response object to a specified path in a human-readable JSON format as well as creating any missing parent directories.
-     * @param response The response object to be serialized and written to file.
-     * @param file_path The full path to the file where the JSON should be saved.
-     * @throws IOException If an I/O error occurs during file operations.
-     */
-    public void saveResponseToFile(Object response, String file_path) throws IOException {
-        Path path = Paths.get(file_path);
-        if (!Files.exists(path.getParent())) {
-            Files.createDirectories(path.getParent());
-        }
-        File file = path.toFile();
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, response);
     }
 }
