@@ -135,8 +135,8 @@ public class AuthenticationController {
      */
     @PostMapping("/Login")
     public ResponseEntity<Object> login() {
+        this.getLogger().info("The user authentication process has started");
         try {
-            this.getLogger().info("Starting user authentication process");
             Map<String, Object> payload = new HashMap<>();
             payload.put("mode", "login");
             payload.put("sign_in_mode", "1");
@@ -148,10 +148,11 @@ public class AuthenticationController {
             Map<String, Object> response = this.getFinClubModel().login(this.getLoginApiRoute(), payload, this.getCacheDirectory());
             int status = (int) response.getOrDefault("status", HttpStatus.SERVICE_UNAVAILABLE.value());
             Object data = response.get("data");
-            this.getLogger().info("Login API call returned status: {}", status);
+            this.getLogger().info("The Login API call is complete.\nStatus: ", status);
             return ResponseEntity.status(status).body(data);
         } catch (Exception error) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", "The user authentication has failed.  Please try again later."));
+            this.getLogger().error("The user authentication process has failed.\nStatus: " + HttpStatus.SERVICE_UNAVAILABLE.value() + "\nError: ", error.getMessage());
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE.value()).body(Map.of("error", "The user authentication process has failed.  Please try again later."));
         }
     }
 }
