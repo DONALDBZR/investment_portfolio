@@ -34,14 +34,17 @@ public class FileManager {
      * Saving a given response object to a specified path in a human-readable JSON format as well as creating any missing parent directories.
      * @param response The response object to be serialized and written to file.
      * @param file_path The full path to the file where the JSON should be saved.
+     * @return 201 if a new file was created, 202 if the file already existed.
      * @throws IOException If an I/O error occurs during file operations.
      */
-    public void saveResponseToFile(Object response, String file_path) throws IOException {
+    public int saveResponseToFile(Object response, String file_path) throws IOException {
         Path path = Paths.get(file_path);
+        boolean fileExisted = Files.exists(path);
         if (!Files.exists(path.getParent())) {
             Files.createDirectories(path.getParent());
         }
         File file = path.toFile();
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, response);
+        object_mapper.writerWithDefaultPrettyPrinter().writeValue(file, response);
+        return (fileExisted) ? 202 : 201;
     }
 }
