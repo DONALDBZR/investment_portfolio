@@ -28,14 +28,6 @@ public class AuthenticationController {
      */
     private String login_api_route;
     /**
-     * It allows the application to act as a client and interact with external REST APIs.
-     */
-    private RestTemplate rest_template;
-    /**
-     * It is a JSON processing library's class.  It is used for converting between JSON and Java objects and vice-versa.
-     */
-    private ObjectMapper object_mapper;
-    /**
      * The mail address of the user.
      */
     private String mail_address;
@@ -48,7 +40,7 @@ public class AuthenticationController {
      */
     private String cache_directory;
     /**
-     * The model that is reponsible of all of the data processing.
+     * The model responsible for processing requests related to the FinClub external API.
      */
     private FinClub fin_club_model;
 
@@ -72,8 +64,6 @@ public class AuthenticationController {
         this.setPassword(password);
         this.setLoginApiRoute(fin_club_controller.getBaseUniformResourceLocator() + "/api/WB/authentication/sign-in/");
         this.setCacheDirectory(cache_main_directory + "/authentication");
-        this.setRestTemplate(new RestTemplate());
-        this.setObjectMapper(new ObjectMapper());
         this.setFinClubModel(new FinClub());
     }
 
@@ -83,22 +73,6 @@ public class AuthenticationController {
 
     private void setLoginApiRoute(String login_api_route) {
         this.login_api_route = login_api_route;
-    }
-
-    private RestTemplate getRestTemplate() {
-        return this.rest_template;
-    }
-
-    private void setRestTemplate(RestTemplate rest_template) {
-        this.rest_template = rest_template;
-    }
-
-    private ObjectMapper getObjectMapper() {
-        return this.object_mapper;
-    }
-
-    private void setObjectMapper(ObjectMapper object_mapper) {
-        this.object_mapper = object_mapper;
     }
 
     private String getMailAddress() {
