@@ -78,7 +78,7 @@ public class FileManager {
             Files.createDirectories(path.getParent());
         }
         File file = path.toFile();
-        object_mapper.writerWithDefaultPrettyPrinter().writeValue(file, response);
+        this.getObjectMapper().writerWithDefaultPrettyPrinter().writeValue(file, response);
         int status = (fileExisted) ? 202 : 201;
         this.getLogger().info("The file has been modified.\nStatus: {}", status);
         return status;
@@ -146,5 +146,22 @@ public class FileManager {
             return;
         }
         throw new AccessDeniedException("The data in the file is not valid to be used.");
+    }
+
+    /**
+     * Reading and deserializing the cached response data from the specified JSON file.
+     * <p>This method attempts to read the contents of the cache file and convert it into a Java Object using the configured JSON mapper.</p>
+     * <p>Logging the start and successful completion of the read operation.</p>
+     * @param file_path The full path to the JSON file containing cached response data.
+     * @return The deserialized response object read from the cache file.
+     * @throws IOException If an I/O error occurs during file reading or JSON parsing.
+     */
+    public object readResponseFromFile(String file_path) throws IOException {
+        this.getLogger().info("The process for reading the data in the cache has started.\nFile Path: {}", file_path);
+        Path path = Paths.get(file_path);
+        File file = path.toFile();
+        Object response = this.getObjectMapper().readValue(file, Object.class);
+        this.getLogger().info("The file has been read.\nFile Path: {}", file_path);
+        return status;
     }
 }
