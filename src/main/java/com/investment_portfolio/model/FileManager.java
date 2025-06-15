@@ -156,7 +156,7 @@ public class FileManager {
      * @return The deserialized response object read from the cache file.
      * @throws IOException If an I/O error occurs during file reading or JSON parsing.
      */
-    public object readResponseFromFile(String file_path) throws IOException {
+    public Object readResponseFromFile(String file_path) throws IOException {
         this.getLogger().info("The process for reading the data in the cache has started.\nFile Path: {}", file_path);
         Path path = Paths.get(file_path);
         File file = path.toFile();
