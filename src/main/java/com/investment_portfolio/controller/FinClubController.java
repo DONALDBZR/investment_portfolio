@@ -21,7 +21,7 @@ public class FinClubController {
      * The constructor which sets the base uniform resource locator.
      * @param base_uniform_resource_locator The base uniform resource locator for FinClub API.
      */
-    public FinClubController(@Value("${finclub.base_uniform_resource_locator}") String base_uniform_resource_locator) {
+    public FinClubController(@Value("${finclub.api.base-uniform-resource-locator}") String base_uniform_resource_locator) {
         this.setBaseUniformResourceLocator(base_uniform_resource_locator);
     }
 
