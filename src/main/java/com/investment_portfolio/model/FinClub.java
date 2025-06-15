@@ -44,7 +44,7 @@ public class FinClub {
      * <p>Logging an informational message when the model is successfully initialized.</p>
      */
     public FinClub() {
-        this.setLogger(LoggerFactory.getLogger(AuthenticationController.class));
+        this.setLogger(LoggerFactory.getLogger(FinClub.class));
         this.setRestTemplate(new RestTemplate());
         this.setFileManager(new FileManager());
         this.getLogger().info("FinClub Model initialized.");
