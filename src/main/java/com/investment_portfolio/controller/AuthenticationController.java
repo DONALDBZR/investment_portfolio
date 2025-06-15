@@ -125,10 +125,10 @@ public class AuthenticationController {
             payload.put("password", this.getPassword());
             payload.put("brn", "");
             payload.put("type_of", "I");
-            ResponseEntity <Object> response = this.getFinClubModel().login(this.getLoginApiRoute(), payload, this.getCacheDirectory());
-            return response;
+            Object response = this.getFinClubModel().login(this.getLoginApiRoute(), payload, this.getCacheDirectory());
+            return ResponseEntity.ok(response);
         } catch (Exception error) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", error.getMessage()));
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", "The user authentication has failed.  Please try again later."));
         }
     }
 }
