@@ -66,7 +66,7 @@ public class FinClub {
         this.file_manager = file_manager;
     }
 
-    private java.util.logging.Logger getLogger() {
+    private Logger getLogger() {
         return this.logger;
     }
 
