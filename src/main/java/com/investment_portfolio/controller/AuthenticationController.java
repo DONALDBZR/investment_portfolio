@@ -47,11 +47,17 @@ public class AuthenticationController {
     private String cache_directory;
 
     /**
-     * Constructing an {@code AuthenticationController} instance with the necessary dependencies and credentials to perform authentication requests against the external FinClub API.
-     * <p>This constructor initializes the login API route using the base uniform resource locator from the injected controller, and retrieves the login credentials from the application configuration.  It also initializes the required components for HTTP requests and JSON processing.</p>
-     * @param fin_club_controller The injected controller containing the base FinClub API uniform resource locator.
-     * @param mail_address The user's email address used for authentication.
-     * @param password The user's password used for authentication.
+     * Constructing a controller with all required dependencies and credentials for performing authentication requests against the external FinClub API.
+     * <p>This constructor initializes:</p>
+     * <ul>
+     * <li>The login API route, composed from the FinClub base uniform resource locator and the fixed login endpoint.</li>
+     * <li>The user credentials injected securely.</li>
+     * <li>The cache directory path where API responses may be stored.</li>
+     * <li>The HTTP client and JSON processor for communication and serialization tasks.</li>
+     * </ul>
+     * @param fin_club_controller The injected controller providing the base FinClub API uniform resource locator.
+     * @param mail_address The user's email address for API authentication.
+     * @param password The user's password for API authentication.
      */
     @Autowired
     public AuthenticationController(FinClubController fin_club_controller, @Value("${finclub.api.login.mail_address}") String mail_address, @Value("${finclub.api.login.password}") String password) {
@@ -59,6 +65,7 @@ public class AuthenticationController {
         this.setMailAddress(mail_address);
         this.setPassword(password);
         this.setLoginApiRoute(login_api_route);
+        this.setCacheDirectory("cache/authentication");
         this.setRestTemplate(new RestTemplate());
         this.setObjectMapper(new ObjectMapper());
     }
