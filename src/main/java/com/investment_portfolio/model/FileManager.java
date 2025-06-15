@@ -4,8 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Instant;
 
 
 /**
@@ -79,5 +82,56 @@ public class FileManager {
         int status = (fileExisted) ? 202 : 201;
         this.getLogger().info("The file has been modified.\nStatus: {}", status);
         return status;
+    }
+
+    /**
+     * Validating whether a file exists and whether its creation time is within the allowed time window.
+     * <p>This method checks for the existence of the file and verifies if the file was created within the last hour.</p>
+     * @param file_path The full path to the file to validate.
+     * @return An HTTP-style status code:
+     * <ul>
+     *  <li><b>200</b> – File exists and is within the valid time window.</li>
+     *  <li><b>403</b> – File exists but has expired based on creation time.</li>
+     *  <li><b>404</b> – File does not exist.</li>
+     *  <li><b>500</b> – Internal error occurred while reading file attributes.</li>
+     * </ul>
+     */
+    public int isValidPath(String file_path) {
+        try {
+            long current_time = Instant.now().getEpochSecond();
+            Path path = Paths.get(file_path);
+            this.fileExists(path);
+            // BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
+            // long creation_time = attributes.creationTime().toInstant().getEpochSecond();
+            // long valid_until = creation_time + 3600;
+            // if (current_time > valid_until) {
+            //     throw new AccessDeniedException("The data in the file is not valid to be used.");
+            // }
+            // return 200;
+        } catch (FileNotFoundException error) {
+            int status = 404;
+            this.getLogger().warn("The file path cannot be validated.\nFile Path: {}\nStatus: {}\nWarning: {}", file_path, status, error.getMessage());
+            return status;
+        // } catch (AccessDeniedException error) {
+        //     int status = 403;
+        //     this.getLogger().warn("The file path cannot be validated.\nFile Path: {}\nStatus: {}\nWarning: {}", file_path, status, error.getMessage());
+        //     return status;
+        // } catch (IOException | InvalidPathException error) {
+        //     this.getLogger().error("The file path cannot be validated.\nStatus: {}\nError: {}", 500, error.getMessage());
+        //     throw new RuntimeException(error.getMessage());
+        }
+    }
+
+    /**
+     * Checking whether the specified file path exists.
+     * <p>If the file does not exist, a {@link FileNotFoundException} is thrown.</p>
+     * @param file_path The {@link Path} to the file to check.
+     * @throws FileNotFoundException If the file does not exist at the specified path.
+     */
+    private void fileExists(Path file_path) throws FileNotFoundException {
+        if (Files.exists(file_path)) {
+            return;
+        }
+        throw new FileNotFoundException("The file path does not exist.");
     }
 }
