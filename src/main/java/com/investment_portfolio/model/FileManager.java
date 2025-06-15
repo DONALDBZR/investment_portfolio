@@ -7,16 +7,17 @@ import java.nio.file.*;
 
 
 /**
- * The model is responsible of all of the processing related to the files that are on its server.
+ * The model responsible for all processing related to file operations on the server.
+ * <p>This class uses the Jackson {@link ObjectMapper} for JSON serialization and provides functionality to save objects as pretty-printed JSON files, ensuring necessary directories are created.</p>
  */
 public class FileManager {
     /**
-     * It is a JSON processing library's class.  It is used for converting between JSON and Java objects and vice-versa.
+     * Jackson JSON processor used to serialize Java objects to JSON.
      */
     private ObjectMapper object_mapper;
 
     /**
-     * Contructing the model by injecting the Object Mapper for the processing of JSON files.
+     * Constructing a new instance initializing the JSON processor.
      */
     public FileManager() {
         this.setObjectMapper(new ObjectMapper());
@@ -31,11 +32,17 @@ public class FileManager {
     }
 
     /**
-     * Saving a given response object to a specified path in a human-readable JSON format as well as creating any missing parent directories.
-     * @param response The response object to be serialized and written to file.
-     * @param file_path The full path to the file where the JSON should be saved.
-     * @return 201 if a new file was created, 202 if the file already existed.
-     * @throws IOException If an I/O error occurs during file operations.
+     * Saving the given response object as a pretty-printed JSON file at the specified path.
+     * <p>If the target directory does not exist, it will be created automatically.  The method returns an integer status code indicating whether the file was newly created or already existed:</p>
+     * <ul>
+     * <li>{@code 201} - The file did not exist and was created before writing.</li>
+     * <li>{@code 202} - The file already existed and was overwritten.</li>
+     * </ul>
+     * <p>In case of an I/O error during directory creation or file writing, an {@link IOException} is thrown.</p>
+     * @param response The Java object to serialize and save as JSON.
+     * @param file_path The full path where the JSON file should be saved.
+     * @return {@code 201} if the file was created, {@code 202} if the file already existed and was overwritten.
+     * @throws IOException If an I/O error occurs during directory creation or file writing.
      */
     public int saveResponseToFile(Object response, String file_path) throws IOException {
         Path path = Paths.get(file_path);
