@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import com.investment_portfolio.model.FileManager;
 
 
 /**
@@ -21,12 +22,17 @@ public class FinClub {
      * It allows the application to act as a client and interact with external REST APIs.
      */
     private RestTemplate rest_template;
+    /**
+     * The model is responsible of all of the processing related to the files that are on its server.
+     */
+    private FileManager file_manager;
 
     /**
      * Contructing the model by injecting the REST Template which will allow the model to communicate with external services as well as injecting the Object Mapper which will handle the JSON processing.
      */
     public FinClub() {
         this.setRestTemplate(new RestTemplate());
+        this.setFileManager(new FileManager());
     }
 
     private RestTemplate getRestTemplate() {
@@ -35,6 +41,14 @@ public class FinClub {
 
     private void setRestTemplate(RestTemplate rest_template) {
         this.rest_template = rest_template;
+    }
+
+    private FileManager getFileManager() {
+        return this.file_manager;
+    }
+
+    private void setFileManager(FileManager file_manager) {
+        this.file_manager = file_manager;
     }
 
     /**
