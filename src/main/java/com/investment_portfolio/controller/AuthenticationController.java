@@ -135,7 +135,7 @@ public class AuthenticationController {
      * <p>This method performs the following steps:</p>
      * <ul>
      *  <li>Building a login payload with user credentials and required parameters.</li>
-     *  <li>Performing an HTTP POST request to the FinClub authentication endpoint.</li>
+     *  <li>Performing an HTTP GET request to the FinClub authentication endpoint.</li>
      *  <li>Caching the response from the API to a local directory (if successful).</li>
      * </ul>
      * <p>If the authentication and caching succeed, the API response is returned with an HTTP 200 (OK) status.  If any exception occurs, the method logs the error and returns an HTTP 503 (Service Unavailable) response.</p>
@@ -145,7 +145,7 @@ public class AuthenticationController {
      *  <li>HTTP 503 and a descriptive error message if login or caching fails</li>
      * </ul>
      */
-    @PostMapping("/Login")
+    @GetMapping("/Login")
     public ResponseEntity<Object> login() {
         this.getLogger().info("The user authentication process has started");
         try {
