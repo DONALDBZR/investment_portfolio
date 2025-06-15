@@ -72,7 +72,7 @@ public class AuthenticationController {
         this.setLoginApiRoute(fin_club_controller.getBaseUniformResourceLocator() + "/api/WB/authentication/sign-in/");
         this.setCacheDirectory(cache_main_directory + "/authentication");
         this.setFinClubModel(new FinClub());
-        this.getLogger().info("AuthenticationController initialized with login API route: {}", this.getLoginApiRoute());
+        this.getLogger().info("AuthenticationController initialized.\nLogin API Route: ", this.getLoginApiRoute());
     }
 
     private String getLoginApiRoute() {
