@@ -1,0 +1,89 @@
+package com.investment_portfolio.model;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.*;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+
+
+/**
+ * Model responsible for processing requests related to the FinClub external API.
+ */
+@Component
+public class FinClub {
+    /**
+     * It allows the application to act as a client and interact with external REST APIs.
+     */
+    private RestTemplate rest_template;
+    /**
+     * It is a JSON processing library's class.  It is used for converting between JSON and Java objects and vice-versa.
+     */
+    private ObjectMapper object_mapper;
+
+    /**
+     * Contructing the model by injecting the REST Template which will allow the model to communicate with external services as well as injecting the Object Mapper which will handle the JSON processing.
+     */
+    public FinClub() {
+        this.setRestTemplate(new RestTemplate());
+        this.setObjectMapper(new ObjectMapper());
+    }
+
+    private RestTemplate getRestTemplate() {
+        return this.rest_template;
+    }
+
+    private void setRestTemplate(RestTemplate rest_template) {
+        this.rest_template = rest_template;
+    }
+
+    private ObjectMapper getObjectMapper() {
+        return this.object_mapper;
+    }
+
+    private void setObjectMapper(ObjectMapper object_mapper) {
+        this.object_mapper = object_mapper;
+    }
+
+    /**
+     * Sending a login request to the FinClub API using the provided endpoint and payload.
+     * @param login_api_route The full uniform resource locator to the FinClub login endpoint.
+     * @param payload The request body containing login credentials and parameters.
+     * @param cache_directory The directory path of the cache.
+     * @return Object The response body returned from the FinClub API.
+     */
+    public Object login(String login_api_route, Map<String, Object> payload, String cache_directory) {
+        String file_path = cache_directory + "/response.json";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+        ResponseEntity<Object> response = this.getRestTemplate().exchange(
+            login_api_route,
+            HttpMethod.POST,
+            request,
+            Object.class
+        );
+        this.saveResponseToFile(response.getBody(), file_path);
+        return response.getBody();
+    }
+
+    /**
+     * Saving a given response object to a specified path in a human-readable JSON format as well as creating any missing parent directories.
+     * @param response The response object to be serialized and written to file.
+     * @param file_path The full path to the file where the JSON should be saved.
+     * @throws IOException If an I/O error occurs during file operations.
+     */
+    public void saveResponseToFile(Object response, String file_path) throws IOException {
+        Path path = Paths.get(file_path);
+        if (!Files.exists(path.getParent())) {
+            Files.createDirectories(path.getParent());
+        }
+        File file = path.toFile();
+        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, response);
+    }
+}
