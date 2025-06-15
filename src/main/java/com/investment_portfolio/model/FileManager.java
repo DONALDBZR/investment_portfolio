@@ -31,21 +31,17 @@ public class FileManager {
     }
 
     /**
-     * Saves the given object as a JSON file at the specified directory.
-     * If the directory does not exist, it will be created.
-     *
-     * @param directoryPath The directory to save the file in.
-     * @param fileName The name of the file to write.
-     * @param data The object to serialize and save.
-     * @throws IOException If any I/O error occurs.
+     * Saving a given response object to a specified path in a human-readable JSON format as well as creating any missing parent directories.
+     * @param response The response object to be serialized and written to file.
+     * @param file_path The full path to the file where the JSON should be saved.
+     * @throws IOException If an I/O error occurs during file operations.
      */
-    public void saveJsonToFile(String directoryPath, String fileName, Object data) throws IOException {
-        Path directory = Paths.get(directoryPath);
-        if (!Files.exists(directory)) {
-            Files.createDirectories(directory);
+    public void saveResponseToFile(Object response, String file_path) throws IOException {
+        Path path = Paths.get(file_path);
+        if (!Files.exists(path.getParent())) {
+            Files.createDirectories(path.getParent());
         }
-
-        File file = Paths.get(directoryPath, fileName).toFile();
-        this.objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, data);
+        File file = path.toFile();
+        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, response);
     }
 }
