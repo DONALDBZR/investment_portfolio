@@ -85,22 +85,22 @@ public class FileManager {
     }
 
     /**
-     * Validating whether a file exists and whether its creation time is within the allowed time window.
-     * <p>This method checks for the existence of the file and verifies if the file was created within the last hour.</p>
-     * @param file_path The full path to the file to validate.
+     * Validating the existence and freshness of a specified file based on its creation timestamp.
+     * <p>This method checks whether the file exists and verifies that it was created within the past hour.  If the file is missing, expired, or unreadable due to I/O errors, an appropriate HTTP-style status code is returned.</p>
+     * @param file_path The absolute path to the file to be validated.
      * @return An HTTP-style status code:
      * <ul>
      *  <li><b>200</b> – File exists and is within the valid time window.</li>
-     *  <li><b>403</b> – File exists but has expired based on creation time.</li>
+     *  <li><b>403</b> – File exists but has expired.</li>
      *  <li><b>404</b> – File does not exist.</li>
-     *  <li><b>500</b> – Internal error occurred while reading file attributes.</li>
+     *  <li><b>503</b> – Internal error occurred while accessing file attributes.</li>
      * </ul>
      */
     public int isValidPath(String file_path) {
         try {
-            long current_time = Instant.now().getEpochSecond();
             Path path = Paths.get(file_path);
             this.fileExists(path);
+            long current_time = Instant.now().getEpochSecond();
             BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
             long creation_time = attributes.creationTime().toInstant().getEpochSecond();
             long valid_until = creation_time + 3600;
@@ -114,9 +114,10 @@ public class FileManager {
             int status = 403;
             this.getLogger().warn("The file path cannot be validated.\nFile Path: {}\nStatus: {}\nWarning: {}", file_path, status, error.getMessage());
             return status;
-        // } catch (IOException | InvalidPathException error) {
-        //     this.getLogger().error("The file path cannot be validated.\nStatus: {}\nError: {}", 500, error.getMessage());
-        //     throw new RuntimeException(error.getMessage());
+        } catch (IOException | InvalidPathException error) {
+            int status = 503;
+            this.getLogger().error("The file path cannot be validated.\nFile Path: {}\nStatus: {}\nError: {}", file_path, status, error.getMessage());
+            throw new RuntimeException(error.getMessage());
         }
     }
 
