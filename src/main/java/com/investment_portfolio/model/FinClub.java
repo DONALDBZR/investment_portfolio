@@ -99,7 +99,7 @@ public class FinClub {
             String file_path = cache_directory + "/response.json";
             int file_status = this.getFileManager().isValidPath(file_path);
             return this.getUserAuthenticationData(file_status, file_path, payload, login_api_route);
-        } catch (IOException error) {
+        } catch (RuntimeException error) {
             this.getLogger().error("The user authentication process has failed.\nStatus: {}\nError: {}", HttpStatus.SERVICE_UNAVAILABLE.value(), error.getMessage());
             throw new RuntimeException(error.getMessage());
         }
