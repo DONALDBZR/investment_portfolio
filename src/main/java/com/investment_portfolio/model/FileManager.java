@@ -101,21 +101,19 @@ public class FileManager {
             long current_time = Instant.now().getEpochSecond();
             Path path = Paths.get(file_path);
             this.fileExists(path);
-            // BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
-            // long creation_time = attributes.creationTime().toInstant().getEpochSecond();
-            // long valid_until = creation_time + 3600;
-            // if (current_time > valid_until) {
-            //     throw new AccessDeniedException("The data in the file is not valid to be used.");
-            // }
-            // return 200;
+            BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
+            long creation_time = attributes.creationTime().toInstant().getEpochSecond();
+            long valid_until = creation_time + 3600;
+            this.fileValid(current_time, valid_until);
+            return 200;
         } catch (FileNotFoundException error) {
             int status = 404;
             this.getLogger().warn("The file path cannot be validated.\nFile Path: {}\nStatus: {}\nWarning: {}", file_path, status, error.getMessage());
             return status;
-        // } catch (AccessDeniedException error) {
-        //     int status = 403;
-        //     this.getLogger().warn("The file path cannot be validated.\nFile Path: {}\nStatus: {}\nWarning: {}", file_path, status, error.getMessage());
-        //     return status;
+        } catch (AccessDeniedException error) {
+            int status = 403;
+            this.getLogger().warn("The file path cannot be validated.\nFile Path: {}\nStatus: {}\nWarning: {}", file_path, status, error.getMessage());
+            return status;
         // } catch (IOException | InvalidPathException error) {
         //     this.getLogger().error("The file path cannot be validated.\nStatus: {}\nError: {}", 500, error.getMessage());
         //     throw new RuntimeException(error.getMessage());
@@ -133,5 +131,19 @@ public class FileManager {
             return;
         }
         throw new FileNotFoundException("The file path does not exist.");
+    }
+
+    /**
+     * Validating whether the file's data is still considered valid based on the given time constraints.
+     * <p>If the current time has passed the validity threshold, an {@link AccessDeniedException} is thrown.</p>
+     * @param current_time The current UNIX timestamp in seconds.
+     * @param valid_until The UNIX timestamp until which the file is considered valid.
+     * @throws AccessDeniedException If the current time exceeds the validity threshold.
+     */
+    private void fileValid(long current_time, long valid_until) throws AccessDeniedException {
+        if (current_time <= valid_until) {
+            return;
+        }
+        throw new AccessDeniedException("The data in the file is not valid to be used.");
     }
 }
