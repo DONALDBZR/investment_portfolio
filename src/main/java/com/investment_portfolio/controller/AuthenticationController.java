@@ -59,14 +59,14 @@ public class AuthenticationController {
      * @param fin_club_controller The injected controller providing the base FinClub API uniform resource locator.
      * @param mail_address The user's email address for API authentication.
      * @param password The user's password for API authentication.
+     * @param cache_main_directory The main directory path of the cache.
      */
     @Autowired
-    public AuthenticationController(FinClubController fin_club_controller, @Value("${finclub.api.login.mail_address}") String mail_address, @Value("${finclub.api.login.password}") String password) {
-        String login_api_route = fin_club_controller.getBaseUniformResourceLocator() + "/api/WB/authentication/sign-in/";
+    public AuthenticationController(FinClubController fin_club_controller, @Value("${finclub.api.login.mail_address}") String mail_address, @Value("${finclub.api.login.password}") String password, @Value("${cache.path}") String cache_main_directory) {
         this.setMailAddress(mail_address);
         this.setPassword(password);
-        this.setLoginApiRoute(login_api_route);
-        this.setCacheDirectory("cache/authentication");
+        this.setLoginApiRoute(fin_club_controller.getBaseUniformResourceLocator() + "/api/WB/authentication/sign-in/");
+        this.setCacheDirectory(cache_main_directory + "/authentication");
         this.setRestTemplate(new RestTemplate());
         this.setObjectMapper(new ObjectMapper());
     }
