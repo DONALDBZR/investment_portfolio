@@ -51,28 +51,35 @@ public class AuthenticationController {
     private Logger logger;
 
     /**
-     * Constructing a controller with all required dependencies and credentials for performing authentication requests against the external FinClub API.
-     * <p>This constructor initializes:</p>
+     * Constructing an {@link AuthenticationController} with the necessary configuration to interact with the FinClub external API.
+     * <p>This constructor performs the following initializations:</p>
      * <ul>
-     * <li>The login API route, composed from the FinClub base uniform resource locator and the fixed login endpoint.</li>
-     * <li>The user credentials injected securely.</li>
-     * <li>The cache directory path where API responses may be stored.</li>
-     * <li>The HTTP client and JSON processor for communication and serialization tasks.</li>
+     *  <li>Configuring the logger instance for monitoring and debugging activities within the controller.</li>
+     *  <li>Assembling the full login API uniform resource locator using the base URI provided by {@code fin_club_controller} and a predefined login endpoint.</li>
+     *  <li>Injecting the user credentials securely from the application's configuration.</li>
+     *  <li>Defining the specific subdirectory within the cache system for storing authentication responses.</li>
+     *  <li>Instantiating a {@link FinClub} model used for API communication and business logic.</li>
      * </ul>
-     * @param fin_club_controller The injected controller providing the base FinClub API uniform resource locator.
-     * @param mail_address The user's email address for API authentication.
-     * @param password The user's password for API authentication.
-     * @param cache_main_directory The main directory path of the cache.
+     * <p>A startup log entry is recorded indicating the initialization of the controller and the login endpoint in use.</p>
+     * @param fin_club_controller The controller providing the FinClub API base URI.
+     * @param mail_address The user email address for authenticating with the external API.
+     * @param password The user password for authenticating with the external API.
+     * @param cache_main_directory The root directory under which authentication responses will be cached.
      */
     @Autowired
-    public AuthenticationController(FinClubController fin_club_controller, @Value("${finclub.api.login.mail_address}") String mail_address, @Value("${finclub.api.login.password}") String password, @Value("${cache.path}") String cache_main_directory) {
+    public AuthenticationController(
+        FinClubController fin_club_controller,
+        @Value("${finclub.api.login.mail_address}") String mail_address,
+        @Value("${finclub.api.login.password}") String password,
+        @Value("${cache.path}") String cache_main_directory
+    ) {
         this.setLogger(LoggerFactory.getLogger(AuthenticationController.class));
         this.setMailAddress(mail_address);
         this.setPassword(password);
         this.setLoginApiRoute(fin_club_controller.getBaseUniformResourceLocator() + "/api/WB/authentication/sign-in/");
         this.setCacheDirectory(cache_main_directory + "/authentication");
         this.setFinClubModel(new FinClub());
-        this.getLogger().info("AuthenticationController initialized.\nLogin API Route: ", this.getLoginApiRoute());
+        this.getLogger().info("AuthenticationController initialized.\nLogin API Route: {}", this.getLoginApiRoute());
     }
 
     private String getLoginApiRoute() {
@@ -124,13 +131,18 @@ public class AuthenticationController {
     }
 
     /**
-     * Handling user login by sending a request to the external FinClub authentication API and caching the API response locally.
-     * <p>This method builds a login payload containing user credentials and other required parameters.  It sends an HTTP POST request to the FinClub API and writes the response to a local JSON file for caching purposes.</p>
-     * <p>If both the API request and file caching are successful, the response from the API is returned with HTTP 200 (OK).  If any part of the process fails (including file write failure or HTTP error), a HTTP 503 (Service Unavailable) response is returned along with an appropriate error message.</p>
+     * Handling user login by sending authentication credentials to the external FinClub API and caching the response locally.
+     * <p>This method performs the following steps:</p>
+     * <ul>
+     *  <li>Building a login payload with user credentials and required parameters.</li>
+     *  <li>Performing an HTTP POST request to the FinClub authentication endpoint.</li>
+     *  <li>Caching the response from the API to a local directory (if successful).</li>
+     * </ul>
+     * <p>If the authentication and caching succeed, the API response is returned with an HTTP 200 (OK) status.  If any exception occurs, the method logs the error and returns an HTTP 503 (Service Unavailable) response.</p>
      * @return a {@link ResponseEntity} containing:
      * <ul>
-     *  <li>HTTP 200 with the API response body if login is successful and response is cached</li>
-     *  <li>HTTP 503 with an error message if login or caching fails</li>
+     *  <li>HTTP 200 and the API response body if login is successful</li>
+     *  <li>HTTP 503 and a descriptive error message if login or caching fails</li>
      * </ul>
      */
     @PostMapping("/Login")
@@ -148,10 +160,10 @@ public class AuthenticationController {
             Map<String, Object> response = this.getFinClubModel().login(this.getLoginApiRoute(), payload, this.getCacheDirectory());
             int status = (int) response.getOrDefault("status", HttpStatus.SERVICE_UNAVAILABLE.value());
             Object data = response.get("data");
-            this.getLogger().info("The Login API call is complete.\nStatus: ", status);
+            this.getLogger().info("The Login API call is complete.\nStatus: {}", status);
             return ResponseEntity.status(status).body(data);
         } catch (Exception error) {
-            this.getLogger().error("The user authentication process has failed.\nStatus: " + HttpStatus.SERVICE_UNAVAILABLE.value() + "\nError: ", error.getMessage());
+            this.getLogger().error("The user authentication process has failed.\nStatus: {}\nError: {}", HttpStatus.SERVICE_UNAVAILABLE.value(), error.getMessage());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE.value()).body(Map.of("error", "The user authentication process has failed.  Please try again later."));
         }
     }
