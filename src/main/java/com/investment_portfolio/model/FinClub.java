@@ -52,24 +52,41 @@ public class FinClub {
     }
 
     /**
-     * Sending a login request to the FinClub API using the provided endpoint and payload.
-     * @param login_api_route The full uniform resource locator to the FinClub login endpoint.
-     * @param payload The request body containing login credentials and parameters.
-     * @param cache_directory The directory path of the cache.
-     * @return Object The response body returned from the FinClub API.
+     * Sending a login request to the FinClub API with the specified endpoint and payload, then caching the response as a JSON file in the given cache directory.
+     * <p>This method constructs an HTTP POST request with the login credentials, sends it to the FinClub login API, and writes the response body to a file.  The method returns a map containing the HTTP status and response data.</p>
+     * @param login_api_route The complete uniform resource locator of the FinClub login endpoint.
+     * @param payload A map containing the login credentials and any additional parameters.
+     * @param cache_directory The path to the directory where the response should be cached.
+     * @return A map with the following keys:
+     * <ul>
+     *  <li><b>{@code status}</b>: HTTP status code — 200 (OK) on success, 503 (Service Unavailable) on failure.</li>
+     *  <li><b>{@code data}</b>: The response body from the FinClub API, or the error message if an exception occurred.</li>
+     * </ul>
+     * @throws RuntimeException if any unrecoverable error occurs during the request or file operation.
      */
-    public Object login(String login_api_route, Map<String, Object> payload, String cache_directory) {
-        String file_path = cache_directory + "/response.json";
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
-        ResponseEntity<Object> response = this.getRestTemplate().exchange(
-            login_api_route,
-            HttpMethod.POST,
-            request,
-            Object.class
-        );
-        this.getFileManager().saveResponseToFile(response.getBody(), file_path);
-        return response.getBody();
+    public Map<String, Object> login(String login_api_route, Map<String, Object> payload, String cache_directory) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String file_path = cache_directory + "/response.json";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+            ResponseEntity<Object> api_response = this.getRestTemplate().exchange(
+                login_api_route,
+                HttpMethod.POST,
+                request,
+                Object.class
+            );
+            int http_status = api_response.getStatusCodeValue();
+            int file_status = this.getFileManager().saveResponseToFile(api_response.getBody(), file_path);
+            int status = (http_status == HttpStatus.OK.value() && (file_status == HttpStatus.CREATED.value() || file_status == HttpStatus.ACCEPTED.value())) ? HttpStatus.OK.value() : HttpStatus.SERVICE_UNAVAILABLE.value();
+            response.put("status", status);
+            response.put("data", api_response.getBody());
+            return response;
+        } catch (Exception error) {
+            response.put("status", HttpStatus.SERVICE_UNAVAILABLE.value());
+            response.put("data", error.getMessage());
+            return response;
+        }
     }
 }
