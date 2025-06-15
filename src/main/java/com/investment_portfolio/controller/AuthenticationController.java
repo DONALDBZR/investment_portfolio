@@ -95,6 +95,6 @@ public class AuthenticationController {
      */
     private void saveResponseToFile(Object response_body) throws IOException {
         File file = Paths.get("login_response.json").toFile();
-        this.object_mapper.writerWithDefaultPrettyPrinter().writeValue(file, response_body);
+        this.getObjectMapper().writerWithDefaultPrettyPrinter().writeValue(file, response_body);
     }
 }
