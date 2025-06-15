@@ -108,11 +108,14 @@ public class AuthenticationController {
     }
 
     /**
-     * Sending a login request with user credentials to an external FinClub authentication API, saving the JSON response to a file on the server, and returning the API response to the client.
-     * <p>The request payload includes necessary fields such as mode, sign-in mode, user type, email, password, and other required parameters.  The request is sent as a POST with a JSON body.</p>
-     * <p>If the external API call succeeds, the JSON response body is saved in a local cache file.  If any exception occurs during the process the method
-     * returns a 503 Service Unavailable status with an error message.</p>
-     * @return a {@link ResponseEntity} containing the external API's response body on success, or an error message with HTTP status 503 if the request fails.
+     * Handling user login by sending a request to the external FinClub authentication API and caching the API response locally.
+     * <p>This method builds a login payload containing user credentials and other required parameters.  It sends an HTTP POST request to the FinClub API and writes the response to a local JSON file for caching purposes.</p>
+     * <p>If both the API request and file caching are successful, the response from the API is returned with HTTP 200 (OK).  If any part of the process fails (including file write failure or HTTP error), a HTTP 503 (Service Unavailable) response is returned along with an appropriate error message.</p>
+     * @return a {@link ResponseEntity} containing:
+     * <ul>
+     *  <li>HTTP 200 with the API response body if login is successful and response is cached</li>
+     *  <li>HTTP 503 with an error message if login or caching fails</li>
+     * </ul>
      */
     @PostMapping("/Login")
     public ResponseEntity<Object> login() {
@@ -125,8 +128,10 @@ public class AuthenticationController {
             payload.put("password", this.getPassword());
             payload.put("brn", "");
             payload.put("type_of", "I");
-            Object response = this.getFinClubModel().login(this.getLoginApiRoute(), payload, this.getCacheDirectory());
-            return ResponseEntity.ok(response);
+            Map<String, Object> response = this.getFinClubModel().login(this.getLoginApiRoute(), payload, this.getCacheDirectory());
+            int status = (int) response.getOrDefault("status", HttpStatus.SERVICE_UNAVAILABLE.value());
+            Object data = response.get("data");
+            return ResponseEntity.status(status).body(data);
         } catch (Exception error) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of("error", "The user authentication has failed.  Please try again later."));
         }
