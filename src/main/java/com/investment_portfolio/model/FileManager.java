@@ -57,29 +57,36 @@ public class FileManager {
     }
 
     /**
-     * Serializing the provided response object into a pretty-printed JSON format and writing it to the specified file path.
+     * Serializing the provided response object into a pretty-printed JSON format and writes it to the specified file path.
      * <p>If the directory structure does not exist, it will be created automatically.  The method determines whether the target file already existed and returns a corresponding HTTP-style status code to indicate the outcome of the write operation:</p>
      * <ul>
      *  <li>{@code 201 (Created)} – The file did not exist before and was created successfully.</li>
      *  <li>{@code 202 (Accepted)} – The file already existed and was overwritten successfully.</li>
+     *  <li>{@code 503 (Service Unavailable)} – The provided HTTP status code indicates a failure and the file will not be written.</li>
      * </ul>
      * <p>Detailed log messages are generated throughout the process to aid in debugging and traceability.</p>
      * @param response The Java object to be serialized and saved as JSON.
      * @param file_path The absolute path where the JSON file should be written.
-     * @return An integer HTTP-style status code indicating whether the file was created or overwritten.
+     * @param http_status The HTTP status code received from the external API.
+     * @return An integer HTTP-style status code indicating whether the file was created, overwritten, or the write was skipped.
      * @throws IOException If an error occurs during directory creation or while writing the file.
      */
-    public int saveResponseToFile(Object response, String file_path) throws IOException {
+    public int saveResponseToFile(Object response, String file_path, int http_status) throws IOException {
         this.getLogger().info("The process for writing the data in the cache has started.\nFile Path: {}", file_path);
         Path path = Paths.get(file_path);
-        boolean fileExisted = Files.exists(path);
-        if (!Files.exists(path.getParent())) {
-            this.getLogger().info("Creating the missing directory.\nDirectory: {}", path.getParent());
-            Files.createDirectories(path.getParent());
+        if (http_status < 200 && http_status >= 300) {
+            this.getLogger().warn("The data cannot be written in the cache as the communication with the external API has failed.\nStatus: {}", http_status);
+            return 503;
         }
+        Path parent_directory = path.getParent();
+        if (!Files.exists(parent_directory)) {
+            this.getLogger().info("Creating the missing directory.\nDirectory: {}", parent_directory);
+            Files.createDirectories(parent_directory);
+        }
+        boolean file_existed = Files.exists(path);
         File file = path.toFile();
         this.getObjectMapper().writerWithDefaultPrettyPrinter().writeValue(file, response);
-        int status = (fileExisted) ? 202 : 201;
+        int status = (file_existed) ? 202 : 201;
         this.getLogger().info("The file has been modified.\nStatus: {}", status);
         return status;
     }
