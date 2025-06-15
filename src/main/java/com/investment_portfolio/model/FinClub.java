@@ -21,17 +21,12 @@ public class FinClub {
      * It allows the application to act as a client and interact with external REST APIs.
      */
     private RestTemplate rest_template;
-    /**
-     * It is a JSON processing library's class.  It is used for converting between JSON and Java objects and vice-versa.
-     */
-    private ObjectMapper object_mapper;
 
     /**
      * Contructing the model by injecting the REST Template which will allow the model to communicate with external services as well as injecting the Object Mapper which will handle the JSON processing.
      */
     public FinClub() {
         this.setRestTemplate(new RestTemplate());
-        this.setObjectMapper(new ObjectMapper());
     }
 
     private RestTemplate getRestTemplate() {
@@ -40,14 +35,6 @@ public class FinClub {
 
     private void setRestTemplate(RestTemplate rest_template) {
         this.rest_template = rest_template;
-    }
-
-    private ObjectMapper getObjectMapper() {
-        return this.object_mapper;
-    }
-
-    private void setObjectMapper(ObjectMapper object_mapper) {
-        this.object_mapper = object_mapper;
     }
 
     /**

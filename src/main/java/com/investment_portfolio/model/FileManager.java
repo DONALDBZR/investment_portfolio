@@ -10,10 +10,24 @@ import java.nio.file.*;
  * The model is responsible of all of the processing related to the files that are on its server.
  */
 public class FileManager {
+    /**
+     * It is a JSON processing library's class.  It is used for converting between JSON and Java objects and vice-versa.
+     */
     private ObjectMapper object_mapper;
 
+    /**
+     * Contructing the model by injecting the Object Mapper for the processing of JSON files.
+     */
     public FileManager() {
-        this.object_mapper = new ObjectMapper();
+        this.setObjectMapper(new ObjectMapper());
+    }
+
+    private ObjectMapper getObjectMapper() {
+        return this.object_mapper;
+    }
+
+    private void setObjectMapper(ObjectMapper object_mapper) {
+        this.object_mapper = object_mapper;
     }
 
     /**
