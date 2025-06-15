@@ -32,11 +32,11 @@ public class AuthenticationController {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(credentials, headers);
-            ResponseEntity<Object> response = restTemplate.exchange(
+            HttpEntity<Map<String, Object>> request_entity = new HttpEntity<>(credentials, headers);
+            ResponseEntity<Object> response = this.rest_template.exchange(
                 loginApiUrl,
                 HttpMethod.POST,
-                requestEntity,
+                request_entity,
                 Object.class
             );
             this.saveResponseToFile(response.getBody());
