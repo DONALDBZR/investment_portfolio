@@ -75,7 +75,7 @@ public class AuthenticationController {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, Object>> request_entity = new HttpEntity<>(credentials, headers);
-            ResponseEntity<Object> response = this.rest_template.exchange(
+            ResponseEntity<Object> response = this.getRestTemplate().exchange(
                 this.getLoginApiRoute(),
                 HttpMethod.POST,
                 request_entity,
