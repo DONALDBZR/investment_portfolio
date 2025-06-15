@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.IOException;
+import java.net.http.HttpHeaders;
 import java.nio.file.Paths;
 import java.util.Map;
 
@@ -16,11 +17,52 @@ import java.util.Map;
 @RestController
 @RequestMapping("/FinClub/Authentication")
 public class AuthenticationController {
-
-    @Value("${external.api.login.url}")
+    /**
+     * The route to be used for authenticating with the Peer-to-Peer Lending Platform.
+     */
     private String login_api_route;
-    private final RestTemplate rest_template = new RestTemplate();
-    private final ObjectMapper object_mapper = new ObjectMapper();
+    /**
+     * It allows the application to act as a client and interact with external REST APIs.
+     */
+    private RestTemplate rest_template;
+    /**
+     * It is a JSON processing library's class.  It is used for converting between JSON and Java objects and vice-versa.
+     */
+    private ObjectMapper object_mapper;
+
+    /**
+     * The constructor of the controller which sets the data needed for the authentication.
+     */
+    @Autowired
+    public AuthenticationController() {
+        this.setLoginApiRoute("https://finclub.mu:8080/api/WB/authentication/sign-in/");
+        this.setRestTemplate(new RestTemplate());
+        this.setObjectMapper(new ObjectMapper());
+    }
+
+    private String getLoginApiRoute() {
+        return this.login_api_route;
+    }
+
+    private void setLoginApiRoute(String login_api_route) {
+        this.login_api_route = login_api_route;
+    }
+
+    private RestTemplate getRestTemplate() {
+        return this.rest_template;
+    }
+
+    private void setRestTemplate(RestTemplate rest_template) {
+        this.rest_template = rest_template;
+    }
+
+    private ObjectMapper getObjectMapper() {
+        return this.object_mapper;
+    }
+
+    private void setObjectMapper(ObjectMapper object_mapper) {
+        this.object_mapper = object_mapper;
+    }
 
     /**
      * Sending login data to an external API, stores the result in a JSON file, and returning the response.
