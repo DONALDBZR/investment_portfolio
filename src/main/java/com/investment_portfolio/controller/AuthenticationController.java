@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 import com.investment_portfolio.controller.FinClubController;
@@ -40,6 +41,10 @@ public class AuthenticationController {
      * The password of the user.
      */
     private String password;
+    /**
+     * The path of the cache directory that is used by the controller.
+     */
+    private String cache_directory;
 
     /**
      * Constructing an {@code AuthenticationController} instance with the necessary dependencies and credentials to perform authentication requests against the external FinClub API.
@@ -98,6 +103,14 @@ public class AuthenticationController {
         this.password = password;
     }
 
+    private String getCacheDirectory() {
+        return this.cache_directory;
+    }
+
+    private void setCacheDirectory(String cache_directory) {
+        this.cache_directory = cache_directory;
+    }
+
     /**
      * Sending login data to an external API, storing the result in a JSON file, and returning the response.
      * @return The response from the external API
@@ -130,12 +143,18 @@ public class AuthenticationController {
     }
 
     /**
-     * Writing the API response to a JSON file on the server.
-     * @param response_body Response object to write
-     * @throws IOException If the file cannot be written
+     * Persisting the given API response object to a JSON file on the server in a human-readable format.
+     * <p>The response is serialized using the configured {@link ObjectMapper} and written to the file.  If the target directory does not exist, it will be automatically created.</p>
+     * @param response_body The API response object to serialize and store as JSON.
+     * @throws IOException If an I/O error occurs during directory creation or file writing.
      */
     private void saveResponseToFile(Object response_body) throws IOException {
-        File file = Paths.get("login_response.json").toFile();
+        String file_path = this.getCacheDirectory() + "/response.json";
+        Path directory = Paths.get(this.getCacheDirectory());
+        if (!Files.exists(directory)) {
+            Files.createDirectories(directory);
+        }
+        File file = Paths.get(file_path).toFile();
         this.getObjectMapper().writerWithDefaultPrettyPrinter().writeValue(file, response_body);
     }
 }
