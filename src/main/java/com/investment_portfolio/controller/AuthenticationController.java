@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,6 +45,10 @@ public class AuthenticationController {
      * The model responsible for processing requests related to the FinClub external API.
      */
     private FinClub fin_club_model;
+    /**
+     * The logger that is responsible of tracking the actions on the application.
+     */
+    private Logger logger;
 
     /**
      * Constructing a controller with all required dependencies and credentials for performing authentication requests against the external FinClub API.
@@ -60,11 +66,13 @@ public class AuthenticationController {
      */
     @Autowired
     public AuthenticationController(FinClubController fin_club_controller, @Value("${finclub.api.login.mail_address}") String mail_address, @Value("${finclub.api.login.password}") String password, @Value("${cache.path}") String cache_main_directory) {
+        this.setLogger(LoggerFactory.getLogger(AuthenticationController.class));
         this.setMailAddress(mail_address);
         this.setPassword(password);
         this.setLoginApiRoute(fin_club_controller.getBaseUniformResourceLocator() + "/api/WB/authentication/sign-in/");
         this.setCacheDirectory(cache_main_directory + "/authentication");
         this.setFinClubModel(new FinClub());
+        this.getLogger().info("AuthenticationController initialized with login API route: {}", this.getLoginApiRoute());
     }
 
     private String getLoginApiRoute() {
@@ -105,6 +113,14 @@ public class AuthenticationController {
 
     private void setFinClubModel(FinClub fin_club_model) {
         this.fin_club_model = fin_club_model;
+    }
+
+    private Logger getLogger() {
+        return this.logger;
+    }
+
+    private void setLogger(Logger logger) {
+        this.logger = logger;
     }
 
     /**
