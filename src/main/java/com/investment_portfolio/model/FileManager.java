@@ -1,4 +1,4 @@
-package com.investment_portfolio.util;
+package com.investment_portfolio.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
