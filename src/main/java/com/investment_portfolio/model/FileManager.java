@@ -102,8 +102,9 @@ public class FileManager {
      *  <li><b>404</b> – File does not exist.</li>
      *  <li><b>503</b> – Internal error occurred while accessing file attributes.</li>
      * </ul>
+     * @throws RunTimeException An unexpected error has happened.
      */
-    public int isValidPath(String file_path) {
+    public int isValidPath(String file_path) throws RuntimeException {
         try {
             Path path = Paths.get(file_path);
             this.fileExists(path);
