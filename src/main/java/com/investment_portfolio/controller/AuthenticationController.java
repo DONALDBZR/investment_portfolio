@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import com.investment_portfolio.controller.FinClubController;
 import java.util.HashMap;
+import com.investment_portfolio.model.FinClub;
 
 
 /**
@@ -46,6 +47,10 @@ public class AuthenticationController {
      * The path of the cache directory that is used by the controller.
      */
     private String cache_directory;
+    /**
+     * The model that is reponsible of all of the data processing.
+     */
+    private FinClub fin_club_model;
 
     /**
      * Constructing a controller with all required dependencies and credentials for performing authentication requests against the external FinClub API.
@@ -69,6 +74,7 @@ public class AuthenticationController {
         this.setCacheDirectory(cache_main_directory + "/authentication");
         this.setRestTemplate(new RestTemplate());
         this.setObjectMapper(new ObjectMapper());
+        this.setFinClubModel(new FinClub());
     }
 
     private String getLoginApiRoute() {
@@ -117,6 +123,14 @@ public class AuthenticationController {
 
     private void setCacheDirectory(String cache_directory) {
         this.cache_directory = cache_directory;
+    }
+
+    private FinClub getFinClubModel() {
+        return this.fin_club_model;
+    }
+
+    private void setFinClubModel(FinClub fin_club_model) {
+        this.fin_club_model = fin_club_model;
     }
 
     /**
