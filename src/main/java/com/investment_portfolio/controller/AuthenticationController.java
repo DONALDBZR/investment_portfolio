@@ -48,11 +48,11 @@ public class AuthenticationController {
 
     /**
      * Writing the API response to a JSON file on the server.
-     * @param responseBody Response object to write
+     * @param response_body Response object to write
      * @throws IOException If the file cannot be written
      */
-    private void saveResponseToFile(Object responseBody) throws IOException {
+    private void saveResponseToFile(Object response_body) throws IOException {
         File file = Paths.get("login_response.json").toFile();
-        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, responseBody);
+        this.object_mapper.writerWithDefaultPrettyPrinter().writeValue(file, response_body);
     }
 }
