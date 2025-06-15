@@ -2,14 +2,16 @@ package com.investment_portfolio.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.io.IOException;
-import java.net.http.HttpHeaders;
 import java.nio.file.Paths;
 import java.util.Map;
+import com.investment_portfolio.controller.FinClubController;
+
 
 /**
  * Controller responsible for /FinClub/Authentication routes.
@@ -32,10 +34,12 @@ public class AuthenticationController {
 
     /**
      * The constructor of the controller which sets the data needed for the authentication.
+     * @param fin_club_controller The injected FinClub controller containing the base uniform resource locator.
      */
     @Autowired
-    public AuthenticationController() {
-        this.setLoginApiRoute("https://finclub.mu:8080/api/WB/authentication/sign-in/");
+    public AuthenticationController(FinClubController fin_club_controller) {
+        String login_api_route = fin_club_controller.getBaseUniformResourceLocator() + "/api/WB/authentication/sign-in/";
+        this.setLoginApiRoute(login_api_route);
         this.setRestTemplate(new RestTemplate());
         this.setObjectMapper(new ObjectMapper());
     }
