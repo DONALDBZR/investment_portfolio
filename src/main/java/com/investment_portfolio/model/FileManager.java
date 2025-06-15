@@ -113,7 +113,9 @@ public class FileManager {
             long creation_time = attributes.creationTime().toInstant().getEpochSecond();
             long valid_until = creation_time + 3600;
             this.fileValid(current_time, valid_until);
-            return 200;
+            int status = 200;
+            this.getLogger().info("The file path is valid.\nFile Path: {}\nStatus: {}", file_path, status);
+            return status;
         } catch (FileNotFoundException error) {
             int status = 404;
             this.getLogger().warn("The file path cannot be validated.\nFile Path: {}\nStatus: {}\nWarning: {}", file_path, status, error.getMessage());
