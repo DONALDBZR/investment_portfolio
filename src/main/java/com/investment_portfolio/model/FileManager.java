@@ -110,7 +110,7 @@ public class FileManager {
             this.fileExists(path);
             long current_time = Instant.now().getEpochSecond();
             BasicFileAttributes attributes = Files.readAttributes(path, BasicFileAttributes.class);
-            long creation_time = attributes.creationTime().toInstant().getEpochSecond();
+            long creation_time = attributes.lastModifiedTime().toInstant().getEpochSecond();
             long valid_until = creation_time + 3600;
             this.fileValid(current_time, valid_until);
             int status = 200;
