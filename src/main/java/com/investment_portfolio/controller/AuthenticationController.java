@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Map;
 import com.investment_portfolio.controller.FinClubController;
+import java.util.HashMap;
 
 
 /**
@@ -31,14 +32,30 @@ public class AuthenticationController {
      * It is a JSON processing library's class.  It is used for converting between JSON and Java objects and vice-versa.
      */
     private ObjectMapper object_mapper;
+    /**
+     * The mail address of the user.
+     */
+    private String mail_address;
+    /**
+     * The password of the user.
+     */
+    private String password;
 
     /**
      * The constructor of the controller which sets the data needed for the authentication.
      * @param fin_club_controller The injected FinClub controller containing the base uniform resource locator.
+     * @param mail_address The mail address of the user needed to be authenticated.
+     * @param password The password of the user needed to be authenticated.
      */
     @Autowired
-    public AuthenticationController(FinClubController fin_club_controller) {
+    public AuthenticationController(
+        FinClubController fin_club_controller,
+        @Value("${finclub.api.login.mail_address}") String mail_address,
+        @Value("${finclub.api.login.password}") String password
+    ) {
         String login_api_route = fin_club_controller.getBaseUniformResourceLocator() + "/api/WB/authentication/sign-in/";
+        this.setMailAddress(mail_address);
+        this.setPassword(password);
         this.setLoginApiRoute(login_api_route);
         this.setRestTemplate(new RestTemplate());
         this.setObjectMapper(new ObjectMapper());
@@ -66,6 +83,22 @@ public class AuthenticationController {
 
     private void setObjectMapper(ObjectMapper object_mapper) {
         this.object_mapper = object_mapper;
+    }
+
+    private String getMailAddress() {
+        return this.mail_address;
+    }
+
+    private void setMailAddress(String mail_address) {
+        this.mail_address = mail_address;
+    }
+
+    private String getPassword() {
+        return this.password;
+    }
+
+    private void setPassword(String password) {
+        this.password = password;
     }
 
     /**
