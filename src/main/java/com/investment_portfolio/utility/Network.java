@@ -5,12 +5,33 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import com.investment_portfolio.error.InvalidAccessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Utility class for retrieving network-related information.
  */
 public class Network {
+    /**
+     * The logger that is responsible of tracking the actions on the application.
+     */
+    private Logger logger;
+
+    public Network() {
+        this.setLogger(LoggerFactory.getLogger(Network.class));
+        this.getLogger().info("Network Utility initialized.");
+    }
+
+    private Logger getLogger() {
+        return this.logger;
+    }
+
+    private void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
     /**
      * Retrieving the server's current public IP address by querying the ipify API.
      * 
@@ -22,5 +43,32 @@ public class Network {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL("https://api.ipify.org").openStream(), StandardCharsets.UTF_8))) {
             return reader.readLine();
         }
+    }
+
+    /**
+     * Verifying that the client request originates from a trusted source.
+     * <p>The request is considered valid if the client IP address:</p>
+     * <ul>
+     *  <li>Is a loopback address</li>
+     *  <li>Is from a private network</li>
+     *  <li>Matches the server's public IP address</li>
+     * </ul>
+     * If none of the above conditions are met, an {@link InvalidAccessException} is thrown.
+     * @param ip_address The IP address of the client making the request.
+     * @param server_ip_address The public IP address of the server.
+     * @throws InvalidAccessException If the request does not originate from a trusted source.
+     */
+    public void originateFromServer(String ip_address, String server_ip_address) throws InvalidAccessException {
+        if (ip_address == null || ip_address.isEmpty()) {
+            String error_message = "The IP address of the client is missing.";
+            this.getLogger().error("{}\nClient IP Address: {}\nServer Address: {}", error_message, ip_address, server_ip_address);
+            throw new InvalidAccessException(error_message);
+        }
+        if (this.isLocalhost(ip_address) || this.isPrivateIpAddress(ip_address) || ip_address.equals(server_ip_address)) {
+            return;
+        }
+        String error_message = "The request has been rejected as it does not originate from the server.";
+        this.getLogger().error("{}\nClient IP Address: {}\nServer Address: {}", error_message, ip_address, server_ip_address);
+        throw new InvalidAccessException(error_message);
     }
 }

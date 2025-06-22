@@ -186,33 +186,6 @@ public class AuthenticationController {
     }
 
     /**
-     * Verifying that the client request originates from a trusted source.
-     * <p>The request is considered valid if the client IP address:</p>
-     * <ul>
-     *  <li>Is a loopback address</li>
-     *  <li>Is from a private network</li>
-     *  <li>Matches the server's public IP address</li>
-     * </ul>
-     * If none of the above conditions are met, an {@link InvalidAccessException} is thrown.
-     * @param ip_address The IP address of the client making the request.
-     * @param server_ip_address The public IP address of the server.
-     * @throws InvalidAccessException If the request does not originate from a trusted source.
-     */
-    private void originateFromServer(String ip_address, String server_ip_address) throws InvalidAccessException {
-        if (ip_address == null || ip_address.isEmpty()) {
-            String error_message = "The IP address of the client is missing.";
-            this.getLogger().error("{}\nClient IP Address: {}\nServer Address: {}", error_message, ip_address, server_ip_address);
-            throw new InvalidAccessException(error_message);
-        }
-        if (this.isLocalhost(ip_address) || this.isPrivateIpAddress(ip_address) || ip_address.equals(server_ip_address)) {
-            return;
-        }
-        String error_message = "The request has been rejected as it does not originate from the server.";
-        this.getLogger().error("{}\nClient IP Address: {}\nServer Address: {}", error_message, ip_address, server_ip_address);
-        throw new InvalidAccessException(error_message);
-    }
-
-    /**
      * Handling user login by authenticating with the FinClub external API.
      * <p>Steps performed:</p>
      * <ul>
@@ -233,7 +206,8 @@ public class AuthenticationController {
         try {
             String server_ip_address = Network.getServerPublicIp();
             this.getLogger().info("The IP Address of the client will be verified against the IP Address of the server.\nClient IP Address: {}\nServer IP Address: {}", ip_address, server_ip_address);
-            this.originateFromServer(ip_address, server_ip_address);
+            Network network_utility = new Network();
+            network_utility.originateFromServer(ip_address, server_ip_address);
             Map<String, Object> payload = new HashMap<>();
             payload.put("mode", "login");
             payload.put("sign_in_mode", "1");
