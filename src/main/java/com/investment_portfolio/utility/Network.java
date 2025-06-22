@@ -46,15 +46,15 @@ public final class Network {
      * @param ip_address The IP address string to check.
      * @return true if the IP address starts with the specified prefix and its last octet is within the private range; false otherwise
      */
-    private boolean isPrivateIpAddress(String ip_address) {
-        if (ip_address == null || !ip_address.startsWith(this.getIpAddressStart())) {
+    private static boolean isPrivateIpAddress(String ip_address) {
+        if (ip_address == null || !ip_address.startsWith(ip_address_start)) {
             return false;
         }
         try {
             int last_octet = Integer.parseInt(ip_address.substring(ip_address.lastIndexOf(".") + 1));
             return last_octet >= 100 && last_octet <= 200;
         } catch (NumberFormatException error) {
-            this.getLogger().error("The application has failed parsing the IP Address octet.\nIP Address: {}\nError: {}", ip_address, error.getMessage());
+            logger.error("The application has failed parsing the IP Address octet.\nIP Address: {}\nError: {}", ip_address, error.getMessage());
             return false;
         }
     }
