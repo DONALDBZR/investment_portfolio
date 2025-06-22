@@ -13,35 +13,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Utility class for retrieving network-related information.
  */
-public class Network {
+public final class Network {
     /**
      * The Start of the private IP Range of the network.
      */
-    private String ip_address_start;
+    private static final String ip_address_start = "192.168.8.";
     /**
      * The logger that is responsible of tracking the actions on the application.
      */
-    private Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(Network.class);
 
     public Network() {
-        this.setLogger(LoggerFactory.getLogger(Network.class));
-        this.getLogger().info("Network Utility initialized.");
-    }
-
-    private String getIpAddressStart() {
-        return this.ip_address_start;
-    }
-
-    private void setIpAddressStart(String ip_address_start) {
-        this.ip_address_start = ip_address_start;
-    }
-
-    private Logger getLogger() {
-        return this.logger;
-    }
-
-    private void setLogger(Logger logger) {
-        this.logger = logger;
+        throw new UnsupportedOperationException("Utility class");
     }
 
     /**
