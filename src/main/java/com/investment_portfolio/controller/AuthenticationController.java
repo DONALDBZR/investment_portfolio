@@ -50,10 +50,6 @@ public class AuthenticationController {
      * The logger that is responsible of tracking the actions on the application.
      */
     private Logger logger;
-    /**
-     * The Start of the private IP Range of the network.
-     */
-    private String ip_address_start;
 
     /**
      * Constructing an {@link AuthenticationController} with the necessary configuration to interact with the FinClub external API.
@@ -134,14 +130,6 @@ public class AuthenticationController {
 
     private void setLogger(Logger logger) {
         this.logger = logger;
-    }
-
-    private String getIpAddressStart() {
-        return this.ip_address_start;
-    }
-
-    private void setIpAddressStart(String ip_address_start) {
-        this.ip_address_start = ip_address_start;
     }
 
     /**

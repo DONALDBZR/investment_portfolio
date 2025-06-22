@@ -15,6 +15,10 @@ import org.slf4j.LoggerFactory;
  */
 public class Network {
     /**
+     * The Start of the private IP Range of the network.
+     */
+    private String ip_address_start;
+    /**
      * The logger that is responsible of tracking the actions on the application.
      */
     private Logger logger;
@@ -22,6 +26,14 @@ public class Network {
     public Network() {
         this.setLogger(LoggerFactory.getLogger(Network.class));
         this.getLogger().info("Network Utility initialized.");
+    }
+
+    private String getIpAddressStart() {
+        return this.ip_address_start;
+    }
+
+    private void setIpAddressStart(String ip_address_start) {
+        this.ip_address_start = ip_address_start;
     }
 
     private Logger getLogger() {
