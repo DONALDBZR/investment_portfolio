@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
  */
 @Controller
 public class HomeController {
+    /**
+     * Handling HTTP GET requests to the root path.
+     * @return The name of the HTML view to be rendered, typically {@code index.html}.
+     */
     @GetMapping("/")
     public String homepage() {
         return "index";
