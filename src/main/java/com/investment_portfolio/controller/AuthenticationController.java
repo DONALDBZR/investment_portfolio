@@ -5,10 +5,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.investment_portfolio.controller.FinClubController;
+import com.investment_portfolio.error.InvalidAccessException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.Map;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import com.investment_portfolio.model.FinClub;
 
 
@@ -123,25 +130,40 @@ public class AuthenticationController {
         this.logger = logger;
     }
 
+    private void originateFromServer(String ip_address, String server_ip_address) throws InvalidAccessException {
+        if (ip_address.equals(server_ip_address)) {
+            return;
+        }
+        String error_message = "The request has been rejected as it does not originate from the server.";
+        this.getLogger().error("{}\nClient IP Address: {}\nServer Address: {}", error_message, ip_address, server_ip_address);
+        throw new InvalidAccessException(error_message);
+    }
+
     /**
-     * Handling user login by sending authentication credentials to the external FinClub API and caching the response locally.
+     * Authenticating the user with the external FinClub API, validating that the request originates from the server itself.
      * <p>This method performs the following steps:</p>
      * <ul>
-     *  <li>Building a login payload with user credentials and required parameters.</li>
-     *  <li>Performing an HTTP GET request to the FinClub authentication endpoint.</li>
-     *  <li>Caching the response from the API to a local directory (if successful).</li>
+     *   <li>Retrieving the client IP address from the current HTTP request.</li>
+     *   <li>Retrieving the server IP address and verifies if the request originates from the server itself.</li>
+     *   <li>Constructing a login payload and forwarding it to the FinClub API via the {@link FinClub} model.</li>
+     *   <li>Logging each phase and returning an appropriate HTTP response based on success or failure.</li>
      * </ul>
-     * <p>If the authentication and caching succeed, the API response is returned with an HTTP 200 (OK) status.  If any exception occurs, the method logs the error and returns an HTTP 503 (Service Unavailable) response.</p>
      * @return a {@link ResponseEntity} containing:
      * <ul>
-     *  <li>HTTP 200 and the API response body if login is successful</li>
-     *  <li>HTTP 503 and a descriptive error message if login or caching fails</li>
+     *   <li>HTTP 200 with the API response body if login is successful.</li>
+     *   <li>HTTP 403 if the IP verification fails.</li>
+     *   <li>HTTP 500 if the server fails to retrieve its own IP.</li>
+     *   <li>HTTP 503 for other unexpected failures during API interaction.</li>
      * </ul>
      */
     @GetMapping("/Login")
     public ResponseEntity<Object> login() {
-        this.getLogger().info("The user authentication process has started");
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        String ip_address = request.getRemoteAddr();
+        this.getLogger().info("The user authentication process has started.");
         try {
+            String server_ip_address = InetAddress.getLocalHost().getHostAddress();
+            this.originateFromServer(ip_address, server_ip_address);
             Map<String, Object> payload = new HashMap<>();
             payload.put("mode", "login");
             payload.put("sign_in_mode", "1");
@@ -155,9 +177,21 @@ public class AuthenticationController {
             Object data = response.get("data");
             this.getLogger().info("The Login API call is complete.\nStatus: {}", status);
             return ResponseEntity.status(status).body(data);
+        } catch (UnknownHostException error) {
+            int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
+            String error_message = "The application cannot retrieve important data.";
+            this.getLogger().error("{}\nStatus: {}\nError: {}", error_message, status, error.getMessage());
+            return ResponseEntity.status(status).body(Map.of("error", error_message));
+        } catch (InvalidAccessException error) {
+            int status = HttpStatus.FORBIDDEN.value();
+            String error_message = "The user authentication process has failed due to invalid access.";
+            this.getLogger().error("{}\nStatus: {}\nError: {}", error_message, status, error.getMessage());
+            return ResponseEntity.status(status).body(Map.of("error", error_message));
         } catch (Exception error) {
-            this.getLogger().error("The user authentication process has failed.\nStatus: {}\nError: {}", HttpStatus.SERVICE_UNAVAILABLE.value(), error.getMessage());
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE.value()).body(Map.of("error", "The user authentication process has failed.  Please try again later."));
+            int status = HttpStatus.SERVICE_UNAVAILABLE.value();
+            String error_message = "The user authentication process has failed.";
+            this.getLogger().error("{}\nStatus: {}\nError: {}", error_message, status, error.getMessage());
+            return ResponseEntity.status(status).body(Map.of("error", error_message));
         }
     }
 }
