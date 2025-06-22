@@ -23,6 +23,10 @@ public final class Network {
      */
     private static final Logger logger = LoggerFactory.getLogger(Network.class);
 
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     * <p>This constructor always throws {@link UnsupportedOperationException} to enforce non-instantiability.</p>
+     */
     public Network() {
         throw new UnsupportedOperationException("Utility class");
     }
