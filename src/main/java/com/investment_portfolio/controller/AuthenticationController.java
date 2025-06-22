@@ -80,7 +80,6 @@ public class AuthenticationController {
         this.setLoginApiRoute(fin_club_controller.getBaseUniformResourceLocator() + "/api/WB/authentication/sign-in/");
         this.setCacheDirectory(cache_main_directory + "/authentication");
         this.setFinClubModel(new FinClub());
-        this.setIpAddressStart("192.168.8.");
         this.getLogger().info("AuthenticationController initialized.\nLogin API Route: {}", this.getLoginApiRoute());
     }
 
