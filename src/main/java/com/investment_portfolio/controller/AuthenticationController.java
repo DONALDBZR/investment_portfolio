@@ -131,14 +131,18 @@ public class AuthenticationController {
         this.logger = logger;
     }
 
+    /**
+     * Determining whether the given IP address is a localhost address.
+     * <p>This method checks if the IP address is: </p>
+     * <ul>
+     *  <li>{@code 127.0.0.1} — IPv4 loopback address</li>
+     *  <li>{@code ::1} — IPv6 loopback address</li>
+     * </ul>
+     * @param ip_address The IP address to validate
+     * @return {@code true} if the IP address is a localhost address, {@code false} otherwise
+     */
     private boolean isLocalhost(String ip_address) {
-        String[] localhost_ip_addresses = {"127.0.0.1", "::1"};
-        for (String localhost_Ip_address: localhost_ip_addresses) {
-            if (ip_address.equals(localhost_Ip_address)) {
-                return true;
-            }
-        }
-        return false;
+        return "127.0.0.1".equals(ip_address) || "::1".equals(ip_address);
     }
 
     private boolean isPrivateIpAddress(String ip_address) {
