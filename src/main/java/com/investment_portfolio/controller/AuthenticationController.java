@@ -130,6 +130,13 @@ public class AuthenticationController {
         this.logger = logger;
     }
 
+    /**
+     * Validating whether the incoming request originates from the same machine.
+     * <p>If the client IP address does not match the server's IP address, the method logs the mismatch and throws an {@link InvalidAccessException}.</p>
+     * @param ip_address the IP address of the client making the request.
+     * @param server_ip_address the server's IP address.
+     * @throws InvalidAccessException if the client and server IP addresses do not match.
+     */
     private void originateFromServer(String ip_address, String server_ip_address) throws InvalidAccessException {
         if (ip_address.equals(server_ip_address)) {
             return;
