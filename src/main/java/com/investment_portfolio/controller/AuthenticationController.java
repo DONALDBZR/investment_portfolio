@@ -145,33 +145,6 @@ public class AuthenticationController {
     }
 
     /**
-     * Checking if the given IP address belongs to the server's private network range defined by the IP prefix and a last octet range between 100 and 200 inclusive.
-     * @param ip_address The IP address string to check.
-     * @return true if the IP address starts with the specified prefix and its last octet is within the private range; false otherwise
-     */
-    private boolean isPrivateIpAddress(String ip_address) {
-        if (ip_address == null || !ip_address.startsWith(this.getIpAddressStart())) {
-            return false;
-        }
-        try {
-            int last_octet = Integer.parseInt(ip_address.substring(ip_address.lastIndexOf(".") + 1));
-            return last_octet >= 100 && last_octet <= 200;
-        } catch (NumberFormatException error) {
-            this.getLogger().error("The application has failed parsing the IP Address octet.\nIP Address: {}\nError: {}", ip_address, error.getMessage());
-            return false;
-        }
-    }
-
-    private boolean is172PrivateRange(String ip_address) {
-        try {
-            int second_octet = Integer.parseInt(ip_address.split("\\.")[1]);
-            return second_octet >= 16 && second_octet <= 31;
-        } catch (Exception error) {
-            return false;
-        }
-    }
-
-    /**
      * Handling user login by authenticating with the FinClub external API.
      * <p>Steps performed:</p>
      * <ul>
