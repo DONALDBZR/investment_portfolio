@@ -131,15 +131,49 @@ public class AuthenticationController {
         this.logger = logger;
     }
 
+    private boolean isLocalhost(String ip_address) {
+        String[] localhost_ip_addresses = {"127.0.0.1", "::1"};
+        for (String localhost_Ip_address: localhost_ip_addresses) {
+            if (ip_address.equals(localhost_Ip_address)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isPrivateIpAddress(String ip_address) {
+        return ip_address.startsWith("10.") || (ip_address.startsWith("172.") && this.is172PrivateRange(ip_address)) || ip_address.startsWith("192.168.");
+    }
+
+    private boolean is172PrivateRange(String ip_address) {
+        try {
+            int second_octet = Integer.parseInt(ip_address.split("\\.")[1]);
+            return second_octet >= 16 && second_octet <= 31;
+        } catch (Exception error) {
+            return false;
+        }
+    }
+
     /**
-     * Validating whether the incoming request originates from the same machine.
-     * <p>If the client IP address does not match the server's IP address, the method logs the mismatch and throws an {@link InvalidAccessException}.</p>
-     * @param ip_address the IP address of the client making the request.
-     * @param server_ip_address the server's IP address.
-     * @throws InvalidAccessException if the client and server IP addresses do not match.
+     * Verifying that the client request originates from a trusted source.
+     * <p>The request is considered valid if the client IP address:</p>
+     * <ul>
+     *  <li>Is a loopback address</li>
+     *  <li>Is from a private network</li>
+     *  <li>Matches the server's public IP address</li>
+     * </ul>
+     * If none of the above conditions are met, an {@link InvalidAccessException} is thrown.
+     * @param ip_address The IP address of the client making the request.
+     * @param server_ip_address The public IP address of the server.
+     * @throws InvalidAccessException If the request does not originate from a trusted source.
      */
     private void originateFromServer(String ip_address, String server_ip_address) throws InvalidAccessException {
-        if (ip_address.equals(server_ip_address)) {
+        if (ip_address == null || ip_address.isEmpty()) {
+            String error_message = "The IP address of the client is missing.";
+            this.getLogger().error("{}\nClient IP Address: {}\nServer Address: {}", error_message, ip_address, server_ip_address);
+            throw new InvalidAccessException(error_message);
+        }
+        if (this.isLocalhost(ip_address) || this.isPrivateIpAddress(ip_address) || ip_address.equals(server_ip_address)) {
             return;
         }
         String error_message = "The request has been rejected as it does not originate from the server.";
