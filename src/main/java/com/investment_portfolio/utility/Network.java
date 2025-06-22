@@ -37,7 +37,7 @@ public final class Network {
      * @param ip_address The IP address to validate
      * @return {@code true} if the IP address is a localhost address, {@code false} otherwise
      */
-    private boolean isLocalhost(String ip_address) {
+    private static boolean isLocalhost(String ip_address) {
         return "127.0.0.1".equals(ip_address) || "::1".equals(ip_address);
     }
 
@@ -85,17 +85,17 @@ public final class Network {
      * @param server_ip_address The public IP address of the server.
      * @throws InvalidAccessException If the request does not originate from a trusted source.
      */
-    public void originateFromServer(String ip_address, String server_ip_address) throws InvalidAccessException {
+    public static void originateFromServer(String ip_address, String server_ip_address) throws InvalidAccessException {
         if (ip_address == null || ip_address.isEmpty()) {
             String error_message = "The IP address of the client is missing.";
-            this.getLogger().error("{}\nClient IP Address: {}\nServer Address: {}", error_message, ip_address, server_ip_address);
+            logger.error("{}\nClient IP Address: {}\nServer Address: {}", error_message, ip_address, server_ip_address);
             throw new InvalidAccessException(error_message);
         }
-        if (this.isLocalhost(ip_address) || this.isPrivateIpAddress(ip_address) || ip_address.equals(server_ip_address)) {
+        if (isLocalhost(ip_address) || isPrivateIpAddress(ip_address) || ip_address.equals(server_ip_address)) {
             return;
         }
         String error_message = "The request has been rejected as it does not originate from the server.";
-        this.getLogger().error("{}\nClient IP Address: {}\nServer Address: {}", error_message, ip_address, server_ip_address);
+        logger.error("{}\nClient IP Address: {}\nServer Address: {}", error_message, ip_address, server_ip_address);
         throw new InvalidAccessException(error_message);
     }
 }
