@@ -50,6 +50,10 @@ public class AuthenticationController {
      * The logger that is responsible of tracking the actions on the application.
      */
     private Logger logger;
+    /**
+     * The Start of the private IP Range of the network.
+     */
+    private String ip_address_start;
 
     /**
      * Constructing an {@link AuthenticationController} with the necessary configuration to interact with the FinClub external API.
@@ -80,6 +84,7 @@ public class AuthenticationController {
         this.setLoginApiRoute(fin_club_controller.getBaseUniformResourceLocator() + "/api/WB/authentication/sign-in/");
         this.setCacheDirectory(cache_main_directory + "/authentication");
         this.setFinClubModel(new FinClub());
+        this.setIpAddressStart("192.168.8.");
         this.getLogger().info("AuthenticationController initialized.\nLogin API Route: {}", this.getLoginApiRoute());
     }
 
@@ -131,6 +136,14 @@ public class AuthenticationController {
         this.logger = logger;
     }
 
+    private String getIpAddressStart() {
+        return this.ip_address_start;
+    }
+
+    private void setIpAddressStart(String ip_address_start) {
+        this.ip_address_start = ip_address_start;
+    }
+
     /**
      * Determining whether the given IP address is a localhost address.
      * <p>This method checks if the IP address is: </p>
@@ -145,8 +158,22 @@ public class AuthenticationController {
         return "127.0.0.1".equals(ip_address) || "::1".equals(ip_address);
     }
 
+    /**
+     * Checking if the given IP address belongs to the server's private network range defined by the IP prefix and a last octet range between 100 and 200 inclusive.
+     * @param ip_address The IP address string to check.
+     * @return true if the IP address starts with the specified prefix and its last octet is within the private range; false otherwise
+     */
     private boolean isPrivateIpAddress(String ip_address) {
-        return ip_address.startsWith("10.") || (ip_address.startsWith("172.") && this.is172PrivateRange(ip_address)) || ip_address.startsWith("192.168.");
+        if (ip_address == null || !ip_address.startsWith(this.getIpAddressStart())) {
+            return false;
+        }
+        try {
+            int last_octet = Integer.parseInt(ip_address.substring(ip_address.lastIndexOf(".") + 1));
+            return last_octet >= 100 && last_octet <= 200;
+        } catch (NumberFormatException error) {
+            this.getLogger().error("The application has failed parsing the IP Address octet.\nIP Address: {}\nError: {}", ip_address, error.getMessage());
+            return false;
+        }
     }
 
     private boolean is172PrivateRange(String ip_address) {
