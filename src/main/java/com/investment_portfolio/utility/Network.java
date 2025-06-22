@@ -33,6 +33,20 @@ public class Network {
     }
 
     /**
+     * Determining whether the given IP address is a localhost address.
+     * <p>This method checks if the IP address is: </p>
+     * <ul>
+     *  <li>{@code 127.0.0.1} — IPv4 loopback address</li>
+     *  <li>{@code ::1} — IPv6 loopback address</li>
+     * </ul>
+     * @param ip_address The IP address to validate
+     * @return {@code true} if the IP address is a localhost address, {@code false} otherwise
+     */
+    private boolean isLocalhost(String ip_address) {
+        return "127.0.0.1".equals(ip_address) || "::1".equals(ip_address);
+    }
+
+    /**
      * Retrieving the server's current public IP address by querying the ipify API.
      * 
      * <p>This method uses a simple HTTP GET request to fetch the public IP from <a href="https://api.ipify.org">https://api.ipify.org</a>.</p>

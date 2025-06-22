@@ -145,20 +145,6 @@ public class AuthenticationController {
     }
 
     /**
-     * Determining whether the given IP address is a localhost address.
-     * <p>This method checks if the IP address is: </p>
-     * <ul>
-     *  <li>{@code 127.0.0.1} — IPv4 loopback address</li>
-     *  <li>{@code ::1} — IPv6 loopback address</li>
-     * </ul>
-     * @param ip_address The IP address to validate
-     * @return {@code true} if the IP address is a localhost address, {@code false} otherwise
-     */
-    private boolean isLocalhost(String ip_address) {
-        return "127.0.0.1".equals(ip_address) || "::1".equals(ip_address);
-    }
-
-    /**
      * Checking if the given IP address belongs to the server's private network range defined by the IP prefix and a last octet range between 100 and 200 inclusive.
      * @param ip_address The IP address string to check.
      * @return true if the IP address starts with the specified prefix and its last octet is within the private range; false otherwise
