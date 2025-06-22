@@ -11,12 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.investment_portfolio.controller.FinClubController;
 import com.investment_portfolio.error.InvalidAccessException;
+import com.investment_portfolio.model.FinClub;
+import com.investment_portfolio.utility.Network;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import com.investment_portfolio.model.FinClub;
+import java.io.IOException;
 
 
 /**
@@ -147,29 +148,26 @@ public class AuthenticationController {
     }
 
     /**
-     * Authenticating the user with the external FinClub API, validating that the request originates from the server itself.
-     * <p>This method performs the following steps:</p>
+     * Handling user login by authenticating with the FinClub external API.
+     * <p>Steps performed:</p>
      * <ul>
-     *   <li>Retrieving the client IP address from the current HTTP request.</li>
-     *   <li>Retrieving the server IP address and verifies if the request originates from the server itself.</li>
-     *   <li>Constructing a login payload and forwarding it to the FinClub API via the {@link FinClub} model.</li>
-     *   <li>Logging each phase and returning an appropriate HTTP response based on success or failure.</li>
+     *  <li>Extracting the client's IP address considering the "X-Forwarded-For" header.</li>
+     *  <li>Retrieving the server's public IP address.</li>
+     *  <li>Verifying the client IP matches the server IP, otherwise throws {@link InvalidAccessException}.</li>
+     *  <li>Building and sends the login payload to the FinClub API.</li>
+     *  <li>Returning the response or an appropriate error message with HTTP status.</li>
      * </ul>
-     * @return a {@link ResponseEntity} containing:
-     * <ul>
-     *   <li>HTTP 200 with the API response body if login is successful.</li>
-     *   <li>HTTP 403 if the IP verification fails.</li>
-     *   <li>HTTP 500 if the server fails to retrieve its own IP.</li>
-     *   <li>HTTP 503 for other unexpected failures during API interaction.</li>
-     * </ul>
+     * @return {@link ResponseEntity} with login data on success, or error message on failure.
      */
     @GetMapping("/Login")
     public ResponseEntity<Object> login() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        String ip_address = request.getRemoteAddr();
+        String ip_address = request.getHeader("X-Forwarded-For");
+        ip_address = (ip_address != null && !ip_address.isEmpty()) ? ip_address.split(",")[0].trim() : request.getRemoteAddr();
         this.getLogger().info("The user authentication process has started.");
         try {
-            String server_ip_address = InetAddress.getLocalHost().getHostAddress();
+            String server_ip_address = Network.getServerPublicIp();
+            this.getLogger().info("The IP Address of the client will be verified against the IP Address of the server.\nClient IP Address: {}\nServer IP Address: {}", ip_address, server_ip_address);
             this.originateFromServer(ip_address, server_ip_address);
             Map<String, Object> payload = new HashMap<>();
             payload.put("mode", "login");
@@ -184,7 +182,7 @@ public class AuthenticationController {
             Object data = response.get("data");
             this.getLogger().info("The Login API call is complete.\nStatus: {}", status);
             return ResponseEntity.status(status).body(data);
-        } catch (UnknownHostException error) {
+        } catch (IOException error) {
             int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
             String error_message = "The application cannot retrieve important data.";
             this.getLogger().error("{}\nStatus: {}\nError: {}", error_message, status, error.getMessage());
