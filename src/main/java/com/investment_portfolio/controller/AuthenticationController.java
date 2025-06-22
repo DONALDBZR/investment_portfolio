@@ -152,8 +152,7 @@ public class AuthenticationController {
         try {
             String server_ip_address = Network.getServerPublicIp();
             this.getLogger().info("The IP Address of the client will be verified against the IP Address of the server.\nClient IP Address: {}\nServer IP Address: {}", ip_address, server_ip_address);
-            Network network_utility = new Network();
-            network_utility.originateFromServer(ip_address, server_ip_address);
+            Network.originateFromServer(ip_address, server_ip_address);
             Map<String, Object> payload = new HashMap<>();
             payload.put("mode", "login");
             payload.put("sign_in_mode", "1");
