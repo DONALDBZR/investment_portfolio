@@ -151,6 +151,18 @@ public class AuthenticationController {
     }
 
     /**
+     * Handling and logging errors during request processing.
+     * @param status The HTTP status code to return.
+     * @param message The human-readable error message.
+     * @param error The exception instance containing the error details.
+     * @return A {@link ResponseEntity} containing the error response body.
+     */
+    private ResponseEntity<Object> handleError(int status, String message, Throwable error) {
+        this.getLogger().error("{}\nStatus: {}\nError: {}", message, status, error.getMessage());
+        return ResponseEntity.status(status).body(Map.of("error", message));
+    }
+
+    /**
      * Authenticating the user by communicating with the external FinClub API.
      * <p>This method performs the following steps:</p>
      * <ul>
