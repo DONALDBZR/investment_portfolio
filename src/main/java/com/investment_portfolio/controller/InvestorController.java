@@ -158,12 +158,17 @@ public class InvestorController {
     }
 
     /**
-     * Formating the raw escrow account overview data retrieved from the API into a structured map separating credit and debit details with their corresponding float values.
-     * @param api_data The raw data map returned by the escrow account overview API, expected to contain keys, with numeric values as strings.
-     * @return A Map containing two nested maps "credit" and "debit" with float values properly parsed.
+     * Transforming raw escrow account data retrieved from the FinClub API into a structured format containing credit and debit summaries.
+     * <p>The input data is expected to include string representations of numeric values which are parsed into floats  and grouped under "credit" and "debit" keys in the returned map.</p>
+     * @param api_data The raw response data from the FinClub API, as a map of key-value pairs.
+     * @return A structured map containing "credit" and "debit" sections with parsed float values.
+     * @throws IOException if the input data is null or the API response is missing.
      */
-    private Map<String, Object> setEscrowAccountOverview(Map<String, Object> api_data) {
-        Map<String, Object> response = new HashMap<>();
+    private Map<String, Object> setEscrowAccountOverview(Map<String, Object> api_data) throws IOException {
+        if (api_data == null) {
+            throw new IOException("The API does not return any data at all.");
+        }
+        Map<String, Object> overview = new HashMap<>();
         Map<String, Float> credit = new HashMap<>();
         Map<String, Float> debit = new HashMap<>();
         credit.put("total", this.parseFloat(api_data.get("totalAmountCredit")));
@@ -173,9 +178,9 @@ public class InvestorController {
         debit.put("amount_disbursed", this.parseFloat(api_data.get("totalAmountInvested")));
         debit.put("total", this.parseFloat(api_data.get("totalAmountDebit")));
         debit.put("amount_withdrawal_pending", this.parseFloat(api_data.get("totaAmountlWithdrawPending")));
-        response.put("credit", credit);
-        response.put("debit", debit);
-        return response;
+        overview.put("credit", credit);
+        overview.put("debit", debit);
+        return overview;
     }
 
     /**
