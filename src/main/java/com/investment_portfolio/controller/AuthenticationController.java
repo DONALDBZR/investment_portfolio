@@ -163,14 +163,15 @@ public class AuthenticationController {
     }
 
     /**
-     * Authenticating the user by communicating with the external FinClub API.
+     * Handling the user login request by forwarding credentials to the FinClub API.
      * <p>This method performs the following steps:</p>
      * <ul>
-     *  <li>Constructs the login payload</li>
-     *  <li>Sends the request to the FinClub API</li>
-     *  <li>Logs and returns the result or error appropriately</li>
+     *  <li>Logging the start of the login process.</li>
+     *  <li>Building the login request payload.</li>
+     *  <li>Forwarding the request to the external FinClub API.</li>
+     *  <li>Handling and logging possible exceptions with appropriate HTTP status codes.</li>
      * </ul>
-     * @return {@link ResponseEntity} containing either the authentication response or a structured error message.
+     * @return a {@link ResponseEntity} containing the API response data on success, or an error message with the appropriate HTTP status on failure.
      */
     @GetMapping("/Login")
     public ResponseEntity<Object> login() {
@@ -182,11 +183,11 @@ public class AuthenticationController {
             this.getLogger().info("The Login API call is complete.\nStatus: {}", status);
             return ResponseEntity.status(status).body(data);
         } catch (IOException error) {
-            return this.handleError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "The application cannot retrieve important data.", error.getMessage());
+            return this.handleError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "The application cannot retrieve important data.", error);
         } catch (InvalidAccessException error) {
-            return this.handleError(HttpStatus.FORBIDDEN.value(), "The user authentication process has failed due to invalid access.", error.getMessage());
+            return this.handleError(HttpStatus.FORBIDDEN.value(), "The user authentication process has failed due to invalid access.", error);
         } catch (Exception error) {
-            return this.handleError(HttpStatus.SERVICE_UNAVAILABLE.value(), "The user authentication process has failed.", error.getMessage());
+            return this.handleError(HttpStatus.SERVICE_UNAVAILABLE.value(), "The user authentication process has failed.", error);
         }
     }
 }
