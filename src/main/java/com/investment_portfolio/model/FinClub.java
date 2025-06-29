@@ -106,26 +106,25 @@ public class FinClub {
     }
 
     /**
-     * Retrieving user authentication data from a cached file or performs a login request to the FinClub API.
-     * <p>If the cached file is still valid, the response is read directly from the cache.  Otherwise, a login API call is made using the given payload, and the response is saved to the specified cache file.</p>
-     * @param file_status HTTP-style status code indicating the validity of the cached file.
-     * @param file_path Full path to the cache file containing the authentication response.
-     * @param payload A map containing login credentials and required parameters for the authentication API.
-     * @param login_api_route The uniform resource locator of the FinClub login API endpoint.
+     * Retrieving user authentication data from cache or via API call.
+     * <p>If the cache is valid, data is loaded directly.  Otherwise, a POST request is sent to the external API and the relevant user data is extracted.  The response is then conditionally saved to cache and returned.</p>
+     * @param file_status HTTP status indicating the cache file's freshness.
+     * @param file_path Path to the local cache file.
+     * @param payload The login request payload.
+     * @param login_api_route The full API endpoint for login.
      * @return A map containing:
      * <ul>
-     *  <li><b>{@code status}</b>: HTTP-style response code indicating the result of the operation.</li>
-     *  <li><b>{@code data}</b>: The user authentication data retrieved either from the cache or the API.</li>
+     *  <li><b>status</b>: HTTP status code indicating outcome.</li>
+     *  <li><b>data</b>: Extracted authentication details or {@code null}.</li>
      * </ul>
-     * @throws IOException If the file operations encounter an unrecoverable error.
-     * @throws RuntimeException If the API request encounter an unrecoverable error.
+     * @throws IOException If there are issues reading from or writing to the cache.
      */
     private Map<String, Object> getUserAuthenticationData(
         int file_status,
         String file_path,
         Map<String, Object> payload,
         String login_api_route
-    ) throws IOException, RuntimeException {
+    ) throws IOException {
         int status;
         Map<String, Object> response = new HashMap<>();
         if (file_status == HttpStatus.OK.value()) {
@@ -140,10 +139,28 @@ public class FinClub {
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
         ResponseEntity<Object> api_response = this.getRestTemplate().exchange(login_api_route, HttpMethod.POST, request, Object.class);
         int http_status = api_response.getStatusCodeValue();
-        int save_status = this.getFileManager().saveResponseToFile(api_response.getBody(), file_path, http_status);
-        status = (http_status == HttpStatus.OK.value() && (save_status == HttpStatus.CREATED.value() || save_status == HttpStatus.ACCEPTED.value())) ? HttpStatus.OK.value() : HttpStatus.SERVICE_UNAVAILABLE.value();
+        Object api_response_body = api_response.getBody();
+        if (api_response_body == null) {
+            status = HttpStatus.SERVICE_UNAVAILABLE.value();
+            response.put("status", status);
+            response.put("data", null);
+            this.getLogger().error("The user authentication process has failed due to no data from the API response.\nStatus: {}", status);
+            return response;
+        }
+        Map<String, Object> authentication_data = this.getResponseData(api_response_body);
+        if (authentication_data == null || authentication_data.isEmpty()) {
+            status = HttpStatus.SERVICE_UNAVAILABLE.value();
+            response.put("status", status);
+            response.put("data", authentication_data);
+            this.getLogger().error("The user authentication process failed due to empty or invalid extracted data.\nStatus: {}", status);
+            return response;
+        }
+        int save_status = this.getFileManager().saveResponseToFile(authentication_data, file_path, http_status);
+        boolean is_cached = (http_status == HttpStatus.OK.value());
+        boolean is_saved = (save_status == HttpStatus.CREATED.value() || save_status == HttpStatus.ACCEPTED.value());
+        status = (is_cached && is_saved) ? HttpStatus.OK.value() : HttpStatus.SERVICE_UNAVAILABLE.value();
         response.put("status", status);
-        response.put("data", api_response.getBody());
+        response.put("data", authentication_data);
         this.getLogger().info("The user authentication process is complete from API request.\nStatus: {}", status);
         return response;
     }
