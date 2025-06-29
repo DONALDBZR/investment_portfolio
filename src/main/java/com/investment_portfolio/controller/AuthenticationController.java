@@ -127,6 +127,30 @@ public class AuthenticationController {
     }
 
     /**
+     * Constructing the payload required for authenticating with the FinClub external API.
+     * <p>The payload includes:</p>
+     * <ul>
+     *  <li>Mode of operation</li>
+     *  <li>Sign-in mode</li>
+     *  <li>User type</li>
+     *  <li>Email and password credentials</li>
+     *  <li>Business Registration Number</li>
+     * </ul>
+     * @return A {@link Map} containing key-value pairs for the login request body.
+     */
+    private Map<String, Object> getLoginPayload() {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("mode", "login");
+        payload.put("sign_in_mode", "1");
+        payload.put("type", "users");
+        payload.put("email", this.getMailAddress());
+        payload.put("password", this.getPassword());
+        payload.put("brn", "");
+        payload.put("type_of", "I");
+        return payload;
+    }
+
+    /**
      * Authenticating the user by communicating with the external FinClub API.
      * <p>This method performs the following steps:</p>
      * <ul>
