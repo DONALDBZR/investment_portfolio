@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.investment_portfolio.controller.FinClubController;
 import com.investment_portfolio.model.FinClub;
+import com.investment_portfolio.utility.Error;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 
@@ -36,6 +38,10 @@ public class InvestorController {
      * The logger that is responsible of tracking the actions on the application.
      */
     private Logger logger;
+    /**
+     * The token of the user.
+     */
+    private String token;
 
     /**
      * Constructing the {@code InvestorController} by initializing required configurations.
@@ -82,5 +88,46 @@ public class InvestorController {
 
     private void setLogger(Logger logger) {
         this.logger = logger;
+    }
+
+    private String getToken() {
+        return this.token;
+    }
+
+    private void setToken(String token) {
+        this.token = token;
+    }
+
+    /**
+     * Retrieving the escrow account overview for the currently authenticated user.
+     * <p>This method performs the following steps:</p>
+     * <ul>
+     *  <li>Loading the authentication data from the local cache</li>
+     *  <li>Extracting and sets the JWT token for authorization</li>
+     *  <li>Calling the escrow account overview API endpoint using the token</li>
+     *  <li>Returning the response data or handles errors appropriately</li>
+     * </ul>
+     * @return {@link ResponseEntity} containing the response data or error information
+     */
+    @GetMapping("/EscrowAccountOverview")
+    public ResponseEntity<Object> getEscrowAccountOverview() {
+        this.getLogger().info("The process for retrieving the escrow account overview has started.");
+        try {
+            String endpoint = this.getDefaultRoute() + "/getEscrowAccountOverview";
+            String authentication_file_path = this.getCacheDirectory() + "../authentication/response.json";
+            Map<String, Object> authentication = this.getFinClubModel().getAuthenticationData(authentication_file_path);
+            this.setToken(this.getAuthenticationToken(authentication));
+            Map<String, Object> response = this.getFinClubModel().getEscrowAccountOverview(endpoint, this.getToken());
+            int status = (int) response.getOrDefault("status", HttpStatus.SERVICE_UNAVAILABLE.value());
+            Object data = response.get("data");
+            this.getLogger().info("The API call for retrieving the escrow account overview is complete.\nStatus: {}", status);
+            return ResponseEntity.status(status).body(data);
+        } catch (IOException error) {
+            return Error.handleError(HttpStatus.SERVICE_UNAVAILABLE.value(), "The user authentication data is invalid.", error);
+        } catch (FileNotFoundException error) {
+            return Error.handleError(HttpStatus.NOT_FOUND.value(), "The file does not exist.", error);
+        } catch (Exception error) {
+            return Error.handleError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occured.", error);
+        }
     }
 }
