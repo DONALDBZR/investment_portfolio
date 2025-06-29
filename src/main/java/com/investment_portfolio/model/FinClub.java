@@ -214,4 +214,27 @@ public class FinClub {
         }
         return this.getFileManager().readResponseFromFile(file_path);
     }
+
+    /**
+     * Retrieving the escrow account overview from the FinClub API.
+     * This method sends a GET request to the specified endpoint using the provided bearer token for authorization.  It returns a map containing the HTTP status code and the response data.
+     * @param endpoint The uniform resource locator of the escrow account overview API endpoint.
+     * @param token The bearer token used for authorization.
+     * @return a map with keys "status" (HTTP status code) and "data" (response body).
+     */
+    public Map<String, Object> getEscrowAccountOverview(String endpoint, String token) {
+        this.getLogger().info("The process for communicating with FinClub API to retrieve the escrow account overview has started.");
+        Map<String, Object> response = new HashMap<>();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<Object> api_response = this.getRestTemplate().exchange(endpoint, HttpMethod.GET, request, Object.class);
+        int status = api_response.getStatusCodeValue();
+        Object response_data = api_response.getBody();
+        response.put("status", status);
+        response.put("data", response_data);
+        this.getLogger().info("The process for communicating with FinClub API to retrieve the escrow account overview has completed.\nStatus: {}", status);
+        return response;
+    }
 }
