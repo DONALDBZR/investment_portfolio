@@ -164,8 +164,8 @@ public class InvestorController {
      */
     private Map<String, Object> setEscrowAccountOverview(Map<String, Object> api_data) {
         Map<String, Object> response = new HashMap<>();
-        Map<String, Object> credit = new HashMap<>();
-        Map<String, Object> debit = new HashMap<>();
+        Map<String, Float> credit = new HashMap<>();
+        Map<String, Float> debit = new HashMap<>();
         credit.put("total", this.parseFloat(api_data.get("totalAmountCredit")));
         credit.put("repayment_received", this.parseFloat(api_data.get("totalAmountCreditByEMI")));
         credit.put("amount_transferred", this.parseFloat(api_data.get("totalAmountCreditByYou")));
@@ -179,10 +179,10 @@ public class InvestorController {
     }
 
     /**
-     * Converting an Object to a Float.
-     * <p>If the input is null or cannot be parsed as a float, returns 0.0f.</p>
-     * @param value The object to convert, typically a String representing a decimal number.
-     * @return The parsed float value or 0.0f if parsing fails.
+     * Parsing the given object into a Float.
+     * <p>If the input is null or cannot be parsed as a float, this method returns 0.0f and logs a warning message.</p>
+     * @param data the object to parse
+     * @return the parsed float value, or 0.0f if parsing fails or data is null
      */
     private Float parseFloat(Object data) {
         if (data == null) {
@@ -191,7 +191,7 @@ public class InvestorController {
         try {
             return Float.parseFloat(data.toString());
         } catch (Exception error) {
-            this.getLogger().warn("The value cannot be parsed.\nData: {}", data);
+            this.getLogger().warn("The value cannot be parsed.\nData: {}\nError: {}", data, error.getMessage());
             return 0.0f;
         }
     }
