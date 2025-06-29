@@ -8,6 +8,7 @@ import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.investment_portfolio.controller.FinClubController;
+import com.investment_portfolio.error.InvalidTokenException;
 import com.investment_portfolio.model.FinClub;
 import com.investment_portfolio.utility.Error;
 import java.util.HashMap;
@@ -96,6 +97,28 @@ public class InvestorController {
 
     private void setToken(String token) {
         this.token = token;
+    }
+
+    /**
+     * Retrieving and validating the authentication token from the provided data map.
+     * @param data A map containing authentication details, expected to include a "token" key.
+     * @return A non-blank authentication token string.
+     * @throws IOException If the provided data map is null or empty.
+     * @throws InvalidTokenException If the token is missing, blank, or not a valid String.
+     */
+    private String getAuthenticationToken(Map<String, Object> data) throws IOException, InvalidTokenException {
+        if (data == null || data.isEmpty()) {
+            String message = "Authentication object is invalid.";
+            this.getLogger().error("{}\nAuthentication Data: {}", message, data);
+            throw new IOException(message);
+        }
+        Object token_object = data.get("token");
+        if (!(token_object instanceof String token) || token.isBlank()) {
+            String message = "The token is invalid.";
+            this.getLogger().error("{}\nToken Object: {}", message, token_object);
+            throw new InvalidTokenException(message);
+        }
+        return token;
     }
 
     /**
