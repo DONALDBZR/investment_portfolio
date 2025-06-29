@@ -142,7 +142,8 @@ public class InvestorController {
             this.setToken(this.getAuthenticationToken(authentication));
             Map<String, Object> response = this.getFinClubModel().getEscrowAccountOverview(endpoint, this.getToken());
             int status = (int) response.getOrDefault("status", HttpStatus.SERVICE_UNAVAILABLE.value());
-            Object data = response.get("data");
+            Object api_data = response.get("data");
+            Map<String, Object> data = this.setEscrowAccountOverview((Map<String, Object>) api_data);
             this.getLogger().info("The API call for retrieving the escrow account overview is complete.\nStatus: {}", status);
             return ResponseEntity.status(status).body(data);
         } catch (FileNotFoundException error) {
