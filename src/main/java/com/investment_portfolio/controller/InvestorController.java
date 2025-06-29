@@ -137,7 +137,7 @@ public class InvestorController {
         this.getLogger().info("The process for retrieving the escrow account overview has started.");
         try {
             String endpoint = this.getDefaultRoute() + "/getEscrowAccountOverview";
-            String authentication_file_path = this.getCacheDirectory() + "../authentication/response.json";
+            String authentication_file_path = this.getCacheDirectory() + "/../authentication/response.json";
             Map<String, Object> authentication = (Map<String, Object>) this.getFinClubModel().getAuthenticationData(authentication_file_path);
             this.setToken(this.getAuthenticationToken(authentication));
             Map<String, Object> response = this.getFinClubModel().getEscrowAccountOverview(endpoint, this.getToken());
