@@ -156,4 +156,25 @@ public class InvestorController {
             return Error.handleError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occured.", error);
         }
     }
+
+    /**
+     * Formating the raw escrow account overview data retrieved from the API into a structured map separating credit and debit details with their corresponding float values.
+     * @param api_data The raw data map returned by the escrow account overview API, expected to contain keys, with numeric values as strings.
+     * @return A Map containing two nested maps "credit" and "debit" with float values properly parsed.
+     */
+    private Map<String, Object> setEscrowAccountOverview(Map<String, Object> api_data) {
+        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> credit = new HashMap<>();
+        Map<String, Object> debit = new HashMap<>();
+        credit.put("total", this.parseFloat(api_data.get("totalAmountCredit")));
+        credit.put("repayment_received", this.parseFloat(api_data.get("totalAmountCreditByEMI")));
+        credit.put("amount_transferred", this.parseFloat(api_data.get("totalAmountCreditByYou")));
+        debit.put("amount_withdrawn", this.parseFloat(api_data.get("totalAmountDebitByYou")));
+        debit.put("amount_disbursed", this.parseFloat(api_data.get("totalAmountInvested")));
+        debit.put("total", this.parseFloat(api_data.get("totalAmountDebit")));
+        debit.put("amount_withdrawal_pending", this.parseFloat(api_data.get("totaAmountlWithdrawPending")));
+        response.put("credit", credit);
+        response.put("debit", debit);
+        return response;
+    }
 }
