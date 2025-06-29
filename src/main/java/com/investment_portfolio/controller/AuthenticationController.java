@@ -127,15 +127,14 @@ public class AuthenticationController {
     }
 
     /**
-     * Handling the user login process by communicating with the FinClub external API.
+     * Authenticating the user by communicating with the external FinClub API.
      * <p>This method performs the following steps:</p>
      * <ul>
-     *  <li>Building the payload with user credentials and login metadata</li>
-     *  <li>Sending a login request to the external FinClub API</li>
-     *  <li>Returning the response data and appropriate HTTP status</li>
-     *  <li>Handling any errors, including access violations or I/O issues</li>
+     *  <li>Constructs the login payload</li>
+     *  <li>Sends the request to the FinClub API</li>
+     *  <li>Logs and returns the result or error appropriately</li>
      * </ul>
-     * @return {@link ResponseEntity} containing the login response on success or an error message on failure.
+     * @return {@link ResponseEntity} containing either the authentication response or a structured error message.
      */
     @GetMapping("/Login")
     public ResponseEntity<Object> login() {
