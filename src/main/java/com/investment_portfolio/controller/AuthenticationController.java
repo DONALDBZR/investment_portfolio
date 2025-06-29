@@ -5,18 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.investment_portfolio.controller.FinClubController;
 import com.investment_portfolio.error.InvalidAccessException;
 import com.investment_portfolio.model.FinClub;
-import com.investment_portfolio.utility.Network;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
-import java.net.InetAddress;
 import java.io.IOException;
 
 
@@ -132,55 +127,31 @@ public class AuthenticationController {
     }
 
     /**
-     * Handling user login by authenticating with the FinClub external API.
-     * <p>Steps performed:</p>
+     * Handling the user login process by communicating with the FinClub external API.
+     * <p>This method performs the following steps:</p>
      * <ul>
-     *  <li>Extracting the client's IP address considering the "X-Forwarded-For" header.</li>
-     *  <li>Retrieving the server's public IP address.</li>
-     *  <li>Verifying the client IP matches the server IP, otherwise throws {@link InvalidAccessException}.</li>
-     *  <li>Building and sends the login payload to the FinClub API.</li>
-     *  <li>Returning the response or an appropriate error message with HTTP status.</li>
+     *  <li>Building the payload with user credentials and login metadata</li>
+     *  <li>Sending a login request to the external FinClub API</li>
+     *  <li>Returning the response data and appropriate HTTP status</li>
+     *  <li>Handling any errors, including access violations or I/O issues</li>
      * </ul>
-     * @return {@link ResponseEntity} with login data on success, or error message on failure.
+     * @return {@link ResponseEntity} containing the login response on success or an error message on failure.
      */
     @GetMapping("/Login")
     public ResponseEntity<Object> login() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        String ip_address = request.getHeader("X-Forwarded-For");
-        ip_address = (ip_address != null && !ip_address.isEmpty()) ? ip_address.split(",")[0].trim() : request.getRemoteAddr();
         this.getLogger().info("The user authentication process has started.");
         try {
-            String server_ip_address = Network.getServerPublicIp();
-            this.getLogger().info("The IP Address of the client will be verified against the IP Address of the server.\nClient IP Address: {}\nServer IP Address: {}", ip_address, server_ip_address);
-            Network.originateFromServer(ip_address, server_ip_address);
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("mode", "login");
-            payload.put("sign_in_mode", "1");
-            payload.put("type", "users");
-            payload.put("email", this.getMailAddress());
-            payload.put("password", this.getPassword());
-            payload.put("brn", "");
-            payload.put("type_of", "I");
-            Map<String, Object> response = this.getFinClubModel().login(this.getLoginApiRoute(), payload, this.getCacheDirectory());
+            Map<String, Object> response = this.getFinClubModel().login(this.getLoginApiRoute(), this.getLoginPayload(), this.getCacheDirectory());
             int status = (int) response.getOrDefault("status", HttpStatus.SERVICE_UNAVAILABLE.value());
             Object data = response.get("data");
             this.getLogger().info("The Login API call is complete.\nStatus: {}", status);
             return ResponseEntity.status(status).body(data);
         } catch (IOException error) {
-            int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
-            String error_message = "The application cannot retrieve important data.";
-            this.getLogger().error("{}\nStatus: {}\nError: {}", error_message, status, error.getMessage());
-            return ResponseEntity.status(status).body(Map.of("error", error_message));
+            return this.handleError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "The application cannot retrieve important data.", error.getMessage());
         } catch (InvalidAccessException error) {
-            int status = HttpStatus.FORBIDDEN.value();
-            String error_message = "The user authentication process has failed due to invalid access.";
-            this.getLogger().error("{}\nStatus: {}\nError: {}", error_message, status, error.getMessage());
-            return ResponseEntity.status(status).body(Map.of("error", error_message));
+            return this.handleError(HttpStatus.FORBIDDEN.value(), "The user authentication process has failed due to invalid access.", error.getMessage());
         } catch (Exception error) {
-            int status = HttpStatus.SERVICE_UNAVAILABLE.value();
-            String error_message = "The user authentication process has failed.";
-            this.getLogger().error("{}\nStatus: {}\nError: {}", error_message, status, error.getMessage());
-            return ResponseEntity.status(status).body(Map.of("error", error_message));
+            return this.handleError(HttpStatus.SERVICE_UNAVAILABLE.value(), "The user authentication process has failed.", error.getMessage());
         }
     }
 }
