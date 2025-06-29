@@ -132,16 +132,18 @@ public class FileManager {
     }
 
     /**
-     * Checking whether the specified file path exists.
-     * <p>If the file does not exist, a {@link FileNotFoundException} is thrown.</p>
-     * @param file_path The {@link Path} to the file to check.
-     * @throws FileNotFoundException If the file does not exist at the specified path.
+     * Verifying that the specified file path exists.
+     * <p>If the file does not exist, logs an error and throws a {@link FileNotFoundException}.</p>
+     * @param file_path The file system {@link Path} to check.
+     * @throws FileNotFoundException If the path does not exist on the file system.
      */
     private void fileExists(Path file_path) throws FileNotFoundException {
         if (Files.exists(file_path)) {
             return;
         }
-        throw new FileNotFoundException("The file path does not exist.");
+        String message = "The file path does not exist.";
+        this.getLogger().error("{}\nFile Path: {}", message, file_path.toString());
+        throw new FileNotFoundException(message);
     }
 
     /**
