@@ -138,7 +138,7 @@ public class InvestorController {
         try {
             String endpoint = this.getDefaultRoute() + "/getEscrowAccountOverview";
             String authentication_file_path = this.getCacheDirectory() + "../authentication/response.json";
-            Map<String, Object> authentication = this.getFinClubModel().getAuthenticationData(authentication_file_path);
+            Map<String, Object> authentication = (Map<String, Object>) this.getFinClubModel().getAuthenticationData(authentication_file_path);
             this.setToken(this.getAuthenticationToken(authentication));
             Map<String, Object> response = this.getFinClubModel().getEscrowAccountOverview(endpoint, this.getToken());
             int status = (int) response.getOrDefault("status", HttpStatus.SERVICE_UNAVAILABLE.value());
