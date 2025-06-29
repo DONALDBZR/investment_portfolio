@@ -159,18 +159,20 @@ public class FileManager {
     }
 
     /**
-     * Reading and deserializing the cached response data from the specified JSON file.
-     * <p>This method attempts to read the contents of the cache file and convert it into a Java Object using the configured JSON mapper.</p>
-     * <p>Logging the start and successful completion of the read operation.</p>
-     * @param file_path The full path to the JSON file containing cached response data.
-     * @return The deserialized response object read from the cache file.
-     * @throws IOException If an I/O error occurs during file reading or JSON parsing.
+     * Reading and deserializing a JSON-formatted cache file into a {@code Map<String, Object>}.
+     * <p>The method ensures the specified file exists and is readable. It then parses the JSON content
+     * into a map structure using Jackson.</p>
+     * @param file_path The absolute or relative path to the JSON cache file.
+     * @return The deserialized content as a {@code Map<String, Object>}.
+     * @throws FileNotFoundException If the file does not exist.
+     * @throws IOException If an error occurs while reading or parsing the file.
      */
-    public Object readResponseFromFile(String file_path) throws IOException {
+    public Object readResponseFromFile(String file_path) throws IOException, FileNotFoundException {
         this.getLogger().info("The process for reading the data in the cache has started.\nFile Path: {}", file_path);
         Path path = Paths.get(file_path);
+        this.fileExists(path);
         File file = path.toFile();
-        Object response = this.getObjectMapper().readValue(file, Object.class);
+        Object response = this.getObjectMapper().readValue(file, new TypeReference<Map<String, Object>>() {});
         this.getLogger().info("The file has been read.\nFile Path: {}", file_path);
         return response;
     }
