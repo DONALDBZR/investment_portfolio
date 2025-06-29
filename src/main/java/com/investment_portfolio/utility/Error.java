@@ -25,4 +25,16 @@ public final class Error {
     public Error() {
         throw new UnsupportedOperationException("Utility class");
     }
+
+    /**
+     * Handling and logging errors during request processing.
+     * @param status The HTTP status code to return.
+     * @param message The human-readable error message.
+     * @param error The exception instance containing the error details.
+     * @return A {@link ResponseEntity} containing the error response body.
+     */
+    public static ResponseEntity<Object> handleError(int status, String message, Throwable error) {
+        logger.error("{}\nStatus: {}\nError: {}", message, status, error.getMessage());
+        return ResponseEntity.status(status).body(Map.of("error", message));
+    }
 }
