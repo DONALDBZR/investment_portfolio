@@ -145,12 +145,12 @@ public class InvestorController {
             Object data = response.get("data");
             this.getLogger().info("The API call for retrieving the escrow account overview is complete.\nStatus: {}", status);
             return ResponseEntity.status(status).body(data);
+        } catch (FileNotFoundException error) {
+            return Error.handleError(HttpStatus.NOT_FOUND.value(), "The file does not exist.", error);
         } catch (IOException error) {
             return Error.handleError(HttpStatus.SERVICE_UNAVAILABLE.value(), "The user authentication data is invalid.", error);
         } catch (InvalidTokenException error) {
             return Error.handleError(HttpStatus.FORBIDDEN.value(), "The authentication token is invalid.", error);
-        } catch (FileNotFoundException error) {
-            return Error.handleError(HttpStatus.NOT_FOUND.value(), "The file does not exist.", error);
         } catch (Exception error) {
             return Error.handleError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occured.", error);
         }
