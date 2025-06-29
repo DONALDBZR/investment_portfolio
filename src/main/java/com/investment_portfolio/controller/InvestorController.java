@@ -177,4 +177,22 @@ public class InvestorController {
         response.put("debit", debit);
         return response;
     }
+
+    /**
+     * Converting an Object to a Float.
+     * <p>If the input is null or cannot be parsed as a float, returns 0.0f.</p>
+     * @param value The object to convert, typically a String representing a decimal number.
+     * @return The parsed float value or 0.0f if parsing fails.
+     */
+    private Float parseFloat(Object data) {
+        if (data == null) {
+            return 0.0f;
+        }
+        try {
+            return Float.parseFloat(data.toString());
+        } catch (Exception error) {
+            this.getLogger().warn("The value cannot be parsed.\nData: {}", data);
+            return 0.0f;
+        }
+    }
 }
