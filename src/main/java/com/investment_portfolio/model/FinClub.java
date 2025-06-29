@@ -7,6 +7,7 @@ import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -198,14 +199,14 @@ public class FinClub {
     }
 
     /**
-     * Retrieving authentication data from the specified cache file.
-     * <p>This method reads and returns the content of the authentication cache file at the given path.</p>
-     * <p>If the file path is {@code null} or blank, an {@link IOException} is thrown and the error is logged.</p>
-     * @param file_path The path to the cached authentication data file.
-     * @return The deserialized content of the authentication file.
-     * @throws IOException If the path is invalid or an I/O error occurs during file reading.
+     * Retrieving the user authentication data from a cached file.
+     * <p>Validating the provided file path and reads the content using the file manager.</p>
+     * @param file_path The path to the cache file containing authentication data.
+     * @return The deserialized authentication data as an {@link Object}.
+     * @throws IOException If an I/O error occurs while reading the file.
+     * @throws FileNotFoundException If the file does not exist.
      */
-    public Object getAuthenticationData(String file_path) throws IOException {
+    public Object getAuthenticationData(String file_path) throws IOException, FileNotFoundException {
         if (file_path == null || file_path.isBlank()) {
             String message = "The file path for reading authentication data is invalid.";
             this.getLogger().error("{}\nFile Path: {}", message, file_path);
