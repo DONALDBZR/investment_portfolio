@@ -147,6 +147,8 @@ public class InvestorController {
             return ResponseEntity.status(status).body(data);
         } catch (IOException error) {
             return Error.handleError(HttpStatus.SERVICE_UNAVAILABLE.value(), "The user authentication data is invalid.", error);
+        } catch (InvalidTokenException error) {
+            return Error.handleError(HttpStatus.FORBIDDEN.value(), "The authentication token is invalid.", error);
         } catch (FileNotFoundException error) {
             return Error.handleError(HttpStatus.NOT_FOUND.value(), "The file does not exist.", error);
         } catch (Exception error) {
