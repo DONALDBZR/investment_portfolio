@@ -196,4 +196,21 @@ public class FinClub {
         authentication.put("token", data.get("token"));
         return authentication;
     }
+
+    /**
+     * Retrieving authentication data from the specified cache file.
+     * <p>This method reads and returns the content of the authentication cache file at the given path.</p>
+     * <p>If the file path is {@code null} or blank, an {@link IOException} is thrown and the error is logged.</p>
+     * @param file_path The path to the cached authentication data file.
+     * @return The deserialized content of the authentication file.
+     * @throws IOException If the path is invalid or an I/O error occurs during file reading.
+     */
+    public Object getAuthenticationData(String file_path) throws IOException {
+        if (file_path == null || file_path.isBlank()) {
+            String message = "The file path for reading authentication data is invalid.";
+            this.getLogger().error("{}\nFile Path: {}", message, file_path);
+            throw new IOException(message);
+        }
+        return this.getFileManager().readResponseFromFile(file_path);
+    }
 }
