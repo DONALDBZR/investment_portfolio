@@ -182,8 +182,6 @@ public class AuthenticationController {
             Object data = response.get("data");
             this.getLogger().info("The Login API call is complete.\nStatus: {}", status);
             return ResponseEntity.status(status).body(data);
-        } catch (IOException error) {
-            return this.handleError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "The application cannot retrieve important data.", error);
         } catch (InvalidAccessException error) {
             return this.handleError(HttpStatus.FORBIDDEN.value(), "The user authentication process has failed due to invalid access.", error);
         } catch (Exception error) {
