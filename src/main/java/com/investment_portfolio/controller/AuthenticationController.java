@@ -7,12 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.investment_portfolio.controller.FinClubController;
-import com.investment_portfolio.error.InvalidAccessException;
-import com.investment_portfolio.model.FinClub;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
+import com.investment_portfolio.controller.FinClubController;
+import com.investment_portfolio.error.InvalidAccessException;
+import com.investment_portfolio.model.FinClub;
+import com.investment_portfolio.utility.Error;
 
 
 /**
@@ -171,9 +172,9 @@ public class AuthenticationController {
             this.getLogger().info("The Login API call is complete.\nStatus: {}", status);
             return ResponseEntity.status(status).body(data);
         } catch (InvalidAccessException error) {
-            return this.handleError(HttpStatus.FORBIDDEN.value(), "The user authentication process has failed due to invalid access.", error);
+            return Error.handleError(HttpStatus.FORBIDDEN.value(), "The user authentication process has failed due to invalid access.", error);
         } catch (Exception error) {
-            return this.handleError(HttpStatus.SERVICE_UNAVAILABLE.value(), "The user authentication process has failed.", error);
+            return Error.handleError(HttpStatus.SERVICE_UNAVAILABLE.value(), "The user authentication process has failed.", error);
         }
     }
 }
