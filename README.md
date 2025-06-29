@@ -10,21 +10,24 @@ Investment Portfolio is a modern web application designed to help users track an
 1. An Investor can login on his/her account.
 
 ## Commit History (Latest Major Updates)
-- **[UPDATE 0.0.69]** Validating the existence and freshness of a specified file based on its creation timestamp.
-- **[UPDATE 0.0.67]** Authenticating the user by either retrieving a cached session or performing a login request to the FinClub API.
-- **[UPDATE 0.0.63]** Reading and deserializing the cached response data from the specified JSON file.
-- **[UPDATE 0.0.61]** Serializing the provided response object into a pretty-printed JSON format and writing it to the specified file path.
-- **[UPDATE 0.0.58]** Authenticating the user by either retrieving a cached session or performing a login request to the FinClub API.
-- **[UPDATE 0.0.56]** Validating whether the file's data is still considered valid based on the given time constraints.
-- **[UPDATE 0.0.54]** The model responsible for all processing related to file operations on the server.
-- **[UPDATE 0.0.52]** Model responsible for processing requests related to the FinClub external API.
-- **[UPDATE 0.0.49]** Handling user login by sending authentication credentials to the external FinClub API and caching the response locally.
-- **[UPDATE 0.0.46]** Constructing a controller with all required dependencies and credentials for performing authentication requests against the external FinClub API.
-- **[UPDATE 0.0.42]** Sending a login request to the FinClub API with the specified endpoint and payload, then caching the response as a JSON file in the given cache directory.
-- **[UPDATE 0.0.41]** Saving a given response object to a specified path in a human-readable JSON format as well as creating any missing parent directories.
-- **[UPDATE 0.0.36]** Constructing the model by injecting the REST Template which allows the model to communicate with external services, as well as injecting the Object Mapper which handles the JSON processing.
-- **[UPDATE 0.0.11]** Writing the API response to a JSON file on the server.
-- **[UPDATE 0.0.1]** Initial commit and setting up the project.
+- **[UPDATE 0.1.54]** Transformed raw escrow account data from the FinClub API into a structured map summarizing credit and debit.
+- **[UPDATE 0.1.53]** Added and enhanced a method for safely parsing an `Object` into a `Float`.
+- **[UPDATE 0.1.51]** Formatted API data into a map with clearly separated float values for credit and debit.
+- **[UPDATE 0.1.50]** Repeated implementations and refinements of retrieving escrow account overview for the current user.
+- **[UPDATE 0.1.45]** Introduced utility classes for error logging.
+- **[UPDATE 0.1.43]** Initial retrieval of escrow account overview from the FinClub API.
+- **[UPDATE 0.1.41]** Validated and extracted authentication tokens from provided data.
+- **[UPDATE 0.1.40]** Defined a custom exception for invalid/missing tokens.
+- **[UPDATE 0.1.38]** Implementation of user login by forwarding credentials to the FinClub API.
+- **[UPDATE 0.1.37]** Standardized error handling during request processing.
+- **[UPDATE 0.1.36]** Added private constructors to utility classes to prevent instantiation.
+- **[UPDATE 0.1.34]** Reading, deserializing, and verifying the authentication cache file.
+- **[UPDATE 0.1.30]** Controller logic for handling root and investor-specific routes.
+- **[UPDATE 0.1.29]** Retrieve user authentication from either cache or API.
+- **[UPDATE 0.1.16]** Added utility methods for verifying trusted IPs, localhost addresses, and private network checks.
+- **[UPDATE 0.1.4]** Introduced custom exception for invalid access attempts.
+- **[UPDATE 0.1.3]** Validated requests originate from the same machine.
+- **[UPDATE 0.1.1]** Initial implementation of Authentication Controller.
 
 ## Contributing
 Contributions, feedback, and testing are welcome!  Please open a pull request or issue for any modifications.  The main branch is reserved for production; development should be done in separate branches.
