@@ -147,4 +147,36 @@ public class FinClub {
         this.getLogger().info("The user authentication process is complete from API request.\nStatus: {}", status);
         return response;
     }
+
+    /**
+     * Extracting essential user authentication data from the API response body.
+     * <p>This method assumes the response is structured with a "data" object containing a nested "user" object
+     * and a top-level "token" field within "data".</p>
+     * @param response_body The raw response object from the FinClub login API.
+     * @return A map containing selected user details and the token, or {@code null} if the structure is invalid.
+     */
+    private Map<String, Object> getResponseData(Object response_body) {
+        if (!(response_body instanceof Map)) {
+            return null;
+        }
+        Map<String, Object> body = (Map<String, Object>) response_body;
+        Object body_data = body.get("data");
+        if (!(body_data instanceof Map)) {
+            return null;
+        }
+        Map<String, Object> data = (Map<String, Object>) body_data;
+        Object user_data = data.get("user");
+        if (!(user_data instanceof Map)) {
+            return null;
+        }
+        Map<String, Object> user = (Map<String, Object>) user_data;
+        Map<String, Object> authentication = new HashMap<>();
+        authentication.put("ur_id", user.get("ur_id"));
+        authentication.put("ur_finid", user.get("ur_finid"));
+        authentication.put("ur_firstname", user.get("ur_firstname"));
+        authentication.put("ur_middlename", user.get("ur_middlename"));
+        authentication.put("ur_surname", user.get("ur_surname"));
+        authentication.put("token", data.get("token"));
+        return authentication;
+    }
 }
